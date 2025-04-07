@@ -52,57 +52,21 @@ export class GridLayoutEngine extends LayoutEngine {
    */
   private calculateNodeLayout(node: TreeNode, x: number, y: number): NodeLayout {
     const { fontSize = 14, fontFamily = 'Arial, sans-serif' } = {};
-    
-    // Calculate title height (node name)
     const titleMetrics = textMeasurer.measureText(node.data.name, fontSize, fontFamily);
     const titleHeight = titleMetrics.height + this.options.padding * 2;
-    
-    // Determine if leaf node
-    const isLeaf = node.children.length === 0;
 
-    // Fixed width for leaf nodes if style option is set
-    const leafNodeWidth = (this as any).styleOptions?.leafNodeWidth;
+    const isLeaf = node.children.length === 0;
+    const leafNodeWidth = this.styleOptions?.leafNodeWidth;
 
     let width: number;
-    if (isLeaf && typeof leafNodeWidth === 'number' && leafNodeWidth > 0) {
-      width = leafNodeWidth;
-    } else {
-      width = Math.max(titleMetrics.width + this.options.padding * 2, this.options.minNodeWidth);
-    }
-    
-    // Calculate layout for children (if any)
-    if (!isLeaf) {
-      const childLayouts = this.calculateChildrenLayout(node.children, this.options.columns);
-      
-      // Content area starts after the title
-      const contentX = x + this.options.padding;
-      const contentY = y + titleHeight;
-      
-      // Update node width and height based on children
-      width = Math.max(width, childLayouts.width + this.options.padding * 2);
-      const height = titleHeight + childLayouts.height + this.options.padding;
-      
-      // Store layout information
-      node.layout = {
-        x,
-        y,
-        width,
-        height,
-        contentArea: {
-          x: contentX,
-          y: contentY,
-          width: width - this.options.padding * 2,
-          height: height - titleHeight - this.options.padding
-        }
-      };
-      
-      // Position children within the content area
-      this.positionChildren(node.children, childLayouts, contentX, contentY);
-    } else {
-      // Leaf node - just use the minimum height
-      const height = Math.max(titleHeight, this.options.minNodeHeight);
-      
-      // Store layout
+    let height: number;
+
+    if (isLeaf) {
+      width = (typeof leafNodeWidth === 'number' && leafNodeWidth > 0)
+        ? leafNodeWidth
+        : Math.max(titleMetrics.width + this.options.padding * 2, this.options.minNodeWidth);
+      height = Math.max(titleHeight, this.options.minNodeHeight);
+
       node.layout = {
         x,
         y,
@@ -115,132 +79,92 @@ export class GridLayoutEngine extends LayoutEngine {
           height: height - titleHeight - this.options.padding
         }
       };
+      return node.layout;
     }
-    
-    return node.layout;
-  }
-  
-  /**
-   * Calculate the layout for a group of children
-   * 
-   * @param children - Child nodes
-   * @param columns - Number of columns for layout
-   * @returns The width and height of the area needed for the children
-   */
-  private calculateChildrenLayout(children: TreeNode[], columns: number): { width: number; height: number } {
-    if (children.length === 0) {
-      return { width: 0, height: 0 };
-    }
-    
-    // Initial sizing - calculate space needed for each child
-    const childSizes: { width: number; height: number }[] = children.map(child => {
-      // Get text dimensions for this child
-      const { fontSize = 14, fontFamily = 'Arial, sans-serif' } = {};
-      const textMetrics = textMeasurer.measureText(child.data.name, fontSize, fontFamily);
-      
-      // Initial size based on text
-      let width = Math.max(textMetrics.width + this.options.padding * 2, this.options.minNodeWidth);
-      let height = Math.max(textMetrics.height + this.options.padding * 2, this.options.minNodeHeight);
-      
-      // If child has children, calculate their layout recursively
-      if (child.children.length > 0) {
-        const subLayout = this.calculateChildrenLayout(child.children, columns);
-        width = Math.max(width, subLayout.width + this.options.padding * 2);
-        height += subLayout.height + this.options.padding;
-      }
-      
-      return { width, height };
-    });
-    
-    // Calculate grid dimensions
-    const rows = Math.ceil(children.length / columns);
-    const columnWidths: number[] = new Array(columns).fill(0);
-    const rowHeights: number[] = new Array(rows).fill(0);
-    
-    // Assign sizes to grid cells
-    children.forEach((_, index) => {
-      const row = Math.floor(index / columns);
-      const col = index % columns;
-      
-      columnWidths[col] = Math.max(columnWidths[col], childSizes[index].width);
-      rowHeights[row] = Math.max(rowHeights[row], childSizes[index].height);
-    });
-    
-    // Calculate total width and height
-    const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0) + 
-      (columnWidths.length - 1) * this.options.spacing;
-    
-    const totalHeight = rowHeights.reduce((sum, height) => sum + height, 0) + 
-      (rowHeights.length - 1) * this.options.spacing;
-    
-    return {
-      width: totalWidth,
-      height: totalHeight
-    };
-  }
-  
-  /**
-   * Position child nodes within their parent's content area
-   * 
-   * @param children - Child nodes to position
-   * @param layout - Layout information for the children's area
-   * @param startX - Starting X position for the children
-   * @param startY - Starting Y position for the children
-   */
-  private positionChildren(
-    children: TreeNode[],
-    layout: { width: number; height: number },
-    startX: number,
-    startY: number
-  ): void {
-    if (children.length === 0) return;
 
+    // First, pre-calculate child sizes by calling calculateNodeLayout at dummy positions
+    // This gives us the true size requirements for each child
+    const childSizes = node.children.map(child => {
+      const layout = this.calculateNodeLayout(child, 0, 0);
+      return { width: layout.width, height: layout.height };
+    });
+
+    // Arrange children in grid
     const columns = this.options.columns;
-    const rows = Math.ceil(children.length / columns);
+    const rows = Math.ceil(node.children.length / columns);
+    
+    // Calculate the maximum width for each column and height for each row
+    const columnWidths = new Array(columns).fill(0);
+    const rowHeights = new Array(rows).fill(0);
 
-    // First, calculate layout for each child at dummy position to get final size
-    children.forEach(child => {
-      this.calculateNodeLayout(child, 0, 0);
+    childSizes.forEach((size, idx) => {
+      const col = idx % columns;
+      const row = Math.floor(idx / columns);
+      
+      // Find maximum width needed for this column
+      columnWidths[col] = Math.max(columnWidths[col], size.width);
+      
+      // Find maximum height needed for this row
+      rowHeights[row] = Math.max(rowHeights[row], size.height);
     });
 
-    // Compute max width/height per grid cell based on actual child layout sizes
-    const columnWidths: number[] = new Array(columns).fill(0);
-    const rowHeights: number[] = new Array(rows).fill(0);
+    // Calculate the total required width and height for the children
+    const totalChildWidth = columnWidths.reduce((sum, w) => sum + w, 0) + 
+                           ((columnWidths.length - 1) * this.options.spacing);
+    const totalChildHeight = rowHeights.reduce((sum, h) => sum + h, 0) + 
+                            ((rowHeights.length - 1) * this.options.spacing);
 
-    children.forEach((child, index) => {
-      const row = Math.floor(index / columns);
-      const col = index % columns;
+    // Calculate the required size for this node
+    width = Math.max(
+      totalChildWidth + this.options.padding * 2, 
+      titleMetrics.width + this.options.padding * 2, 
+      this.options.minNodeWidth
+    );
+    height = titleHeight + totalChildHeight + this.options.padding;
 
-      const childWidth = child.layout ? child.layout.width : 0;
-      const childHeight = child.layout ? child.layout.height : 0;
+    // Create layout object for this node
+    node.layout = {
+      x,
+      y,
+      width,
+      height,
+      contentArea: {
+        x: x + this.options.padding,
+        y: y + titleHeight,
+        width: width - this.options.padding * 2,
+        height: height - titleHeight - this.options.padding
+      }
+    };
 
-      columnWidths[col] = Math.max(columnWidths[col], childWidth);
-      rowHeights[row] = Math.max(rowHeights[row], childHeight);
-    });
-
-    // Calculate accumulated column positions
-    const colPositions: number[] = [0];
+    // Now position the children within the content area
+    const startX = node.layout.contentArea!.x;
+    const startY = node.layout.contentArea!.y;
+    
+    // Calculate the starting position for each column and row
+    const colPositions = [0]; // First column starts at x=0 relative to content area
     for (let i = 1; i < columns; i++) {
-      colPositions[i] = colPositions[i - 1] + columnWidths[i - 1] + this.options.spacing;
+      colPositions[i] = colPositions[i-1] + columnWidths[i-1] + this.options.spacing;
     }
-
-    // Calculate accumulated row positions
-    const rowPositions: number[] = [0];
+    
+    const rowPositions = [0]; // First row starts at y=0 relative to content area
     for (let i = 1; i < rows; i++) {
-      rowPositions[i] = rowPositions[i - 1] + rowHeights[i - 1] + this.options.spacing;
+      rowPositions[i] = rowPositions[i-1] + rowHeights[i-1] + this.options.spacing;
     }
 
-    // Position each child at correct position
-    children.forEach((child, index) => {
-      const row = Math.floor(index / columns);
-      const col = index % columns;
-
-      const x = startX + colPositions[col];
-      const y = startY + rowPositions[row];
-
-      // Re-calculate layout at final position (sizes stay the same)
-      this.calculateNodeLayout(child, x, y);
+    // Position each child at its final location
+    node.children.forEach((child, idx) => {
+      const col = idx % columns;
+      const row = Math.floor(idx / columns);
+      
+      // Calculate absolute position for the child
+      const childX = startX + colPositions[col];
+      const childY = startY + rowPositions[row];
+      
+      // Re-apply the layout at the final position
+      this.calculateNodeLayout(child, childX, childY);
     });
+
+    return node.layout;
   }
   
   /**
