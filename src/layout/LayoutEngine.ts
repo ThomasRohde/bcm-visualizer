@@ -1,4 +1,4 @@
-import { TreeNode, LayoutOptions } from '../types';
+import { TreeNode, LayoutOptions } from '../types/index.js';
 
 /**
  * Abstract base class for layout engines

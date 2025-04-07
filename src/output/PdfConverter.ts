@@ -11,7 +11,7 @@ export class PdfConverter {
   async convert(svgString: string): Promise<Buffer> {
     try {
       // First convert to PNG as an intermediate step
-      const { PngConverter } = await import('./PngConverter');
+      const { PngConverter } = await import('./PngConverter.js');
       const pngConverter = new PngConverter();
       const pngBuffer = await pngConverter.convert(svgString);
       

@@ -29,8 +29,8 @@
   <!-- Include the SVG.js library -->
   <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.1.2/dist/svg.min.js"></script>
   
-  <!-- Include the UMD bundle (replace with actual path) -->
-  <script src="../dist/diagram-generator.umd.js"></script>
+  <!-- Include the UMD bundle -->
+  <script src="../dist/browser/diagram-generator.umd.js"></script>
   <script>
     // Sample data
     const data = [
@@ -86,8 +86,8 @@
     window.onload = function() {
       const container = document.getElementById('diagram-container');
       
-      // With named exports, we need to access the default export first
-      DiagramGenerator.default.render(data, container, options)
+      // Call the render function from the DiagramGenerator global
+      DiagramGenerator.render(data, container, options)
         .catch(error => {
           console.error('Error rendering diagram:', error);
           container.innerHTML = `<p style="color: red">Error: ${error.message}</p>`;

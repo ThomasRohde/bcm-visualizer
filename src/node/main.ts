@@ -3,9 +3,9 @@ import fs from 'fs/promises';
 import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { generateDiagram } from './core/index.js';
-import { DiagramOptions, HierarchyNode, OutputFormat } from './types/index.js';
-import { DEFAULT_DIAGRAM_OPTIONS } from './config/index.js';
+import { generateDiagram } from '../core/index.js';
+import { DiagramOptions, HierarchyNode, OutputFormat } from '../types/index.js';
+import { DEFAULT_DIAGRAM_OPTIONS } from '../config/index.js';
 
 // Define CLI options
 const argv = yargs(hideBin(process.argv))

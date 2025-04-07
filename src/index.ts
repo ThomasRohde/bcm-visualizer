@@ -7,4 +7,4 @@ export * from './output/index.js';
 export * from './config/index.js';
 
 // Export browser renderer for direct use in Node.js environment
-export { BrowserDiagramRenderer } from './browser.js';
+export { BrowserDiagramRenderer } from './browser/main.js';

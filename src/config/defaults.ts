@@ -1,4 +1,4 @@
-import { LayoutOptions, StyleOptions, DiagramOptions } from '../types';
+import { LayoutOptions, StyleOptions, DiagramOptions } from '../types/index.js';
 
 /**
  * Default layout options

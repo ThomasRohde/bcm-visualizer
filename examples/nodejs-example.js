@@ -1,6 +1,12 @@
-const fs = require('fs').promises;
-const path = require('path');
-const { generateDiagram } = require('../dist');
+// Updated to use ES Modules
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { generateDiagram } from '../dist/node/index.js';
+
+// Get current file directory with ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function example() {
   try {
@@ -26,17 +32,17 @@ async function example() {
           'channels': '#e3f2fd'
         }
       },
-      format: 'svg'
+      format: 'svg',
+      outputPath: path.join(__dirname, 'example-output.svg')
     };
     
     // Generate diagram
     const result = await generateDiagram(sampleData, options);
     
     // Save the output
-    const outputPath = path.join(__dirname, 'example-output.svg');
-    await fs.writeFile(outputPath, result, 'utf-8');
+    await fs.writeFile(options.outputPath, result, 'utf-8');
     
-    console.log(`Diagram generated successfully: ${outputPath}`);
+    console.log(`Diagram generated successfully: ${options.outputPath}`);
   } catch (error) {
     console.error('Error in example:', error);
   }

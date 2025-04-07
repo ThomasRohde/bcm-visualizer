@@ -1,4 +1,4 @@
-import { HierarchyNode, TreeNode } from '../types';
+import { HierarchyNode, TreeNode } from '../types/index.js';
 
 /**
  * Builds a tree structure from flat node data

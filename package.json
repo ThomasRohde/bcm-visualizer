@@ -3,14 +3,25 @@
   "version": "1.0.0",
   "description": "Generate hierarchical diagrams from JSON data",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/node/index.js",
+  "types": "dist/node/index.d.ts",
+  "browser": "dist/browser/diagram-generator.esm.js",
   "bin": {
-    "hierarchical-diagram-generator": "dist/cli.js"
+    "hierarchical-diagram-generator": "dist/node/main.js"
+  },
+  "exports": {
+    ".": {
+      "node": "./dist/node/index.js",
+      "browser": "./dist/browser/diagram-generator.esm.js",
+      "default": "./dist/node/index.js"
+    }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "bundle": "rollup -c",
+    "build:node": "tsc -p tsconfig.node.json",
+    "build:browser": "rollup -c", 
+    "build": "npm run build:node && npm run build:browser",
+    "dev:node": "tsc -p tsconfig.node.json --watch",
+    "dev:browser": "rollup -c -w",
     "test": "jest",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write \"src/**/*.ts\"",
@@ -53,5 +64,10 @@
   },
   "engines": {
     "node": ">=14.0.0"
-  }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
 }
