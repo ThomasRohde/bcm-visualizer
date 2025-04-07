@@ -24,7 +24,9 @@ logs/
 *.njsproj
 *.sln
 *.sw?
-
+*.svg
+*.png
+*.pdf
 # OS specific
 .DS_Store
 Thumbs.db
