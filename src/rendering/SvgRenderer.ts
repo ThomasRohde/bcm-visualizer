@@ -204,7 +204,7 @@ export class SvgRenderer {
       let dominantBaseline: string | null = null;
 
       if (isLeaf) {
-        titleY = y + height / 2;
+        titleY = y + height / 2 - this.style.fontSize / 2; // adjust for better vertical centering
         dominantBaseline = 'middle';
       } else {
         titleY = y + this.style.parentLabelPaddingTop;
