@@ -1,10 +1,12 @@
 export * from './LayoutEngine.js';
 export * from './GridLayoutEngine.js';
 export * from './AspectRatioGridLayoutEngine.js';
+export * from './PermutationGridLayoutEngine.js';
 
 import { LayoutEngine } from './LayoutEngine.js';
 import { GridLayoutEngine } from './GridLayoutEngine.js';
 import { AspectRatioGridLayoutEngine } from './AspectRatioGridLayoutEngine.js';
+import { PermutationGridLayoutEngine } from './PermutationGridLayoutEngine.js';
 import { LayoutOptions, StyleOptions } from '../types/index.js';
 
 /**
@@ -26,9 +28,10 @@ export function createLayoutEngine(
       case 'aspectratio':
       case 'aspect-ratio':
         return new AspectRatioGridLayoutEngine(layoutOptions, styleOptions);
-      // Add new layout engines here as they are implemented
-      // case 'radial':
-      //   return new RadialLayoutEngine(layoutOptions, styleOptions);
+      case 'optimized':
+      case 'permutation':
+      case 'permutation-grid':
+        return new PermutationGridLayoutEngine(layoutOptions, styleOptions);
       default:
         console.warn(`Unknown layout type: ${layoutOptions.layoutType}, falling back to grid layout`);
         return new GridLayoutEngine(layoutOptions, styleOptions);
