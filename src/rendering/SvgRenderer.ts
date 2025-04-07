@@ -197,37 +197,38 @@ export class SvgRenderer {
 
     // Check if this is a leaf node with a fixed width that needs text wrapping
     if (isLeaf && this.style.leafNodeWidth) {
-      // Use the dedicated function for wrapped and centered text
       this.renderWrappedText(group, node.data.name, x, y, width, height);
     } else {
-      // Add the title text. Center leaf nodes, top-align parent nodes.
       const centerX = x + width / 2;
       let titleY: number;
       let dominantBaseline: string | null = null;
 
       if (isLeaf) {
-        // Center leaf nodes vertically
         titleY = y + height / 2;
-        dominantBaseline = 'middle'; // Use dominant-baseline for vertical centering
+        dominantBaseline = 'middle';
       } else {
-        // Horizontally center, vertically offset from top edge by parentLabelPaddingTop
         titleY = y + this.style.parentLabelPaddingTop;
-        dominantBaseline = 'hanging'; // Align top of text with the Y coordinate
+        dominantBaseline = 'hanging';
       }
 
       const title = group.text(node.data.name)
         .font({
           family: this.style.fontFamily,
           size: this.style.fontSize,
-          anchor: 'middle', // Horizontal centering
-          leading: '1.2em' // Adjust line spacing if needed, though less relevant for single lines
+          anchor: 'start', // start to allow manual centering
+          leading: '1.2em'
         })
         .fill(this.style.fontColor)
-        .move(centerX, titleY); // Position horizontally centered, vertically based on type
+        .move(x, titleY);
 
       if (dominantBaseline) {
-        title.attr('dominant-baseline', dominantBaseline); // Apply vertical alignment
+        title.attr('dominant-baseline', dominantBaseline);
       }
+
+      // Measure bbox and center horizontally
+      const bbox = title.bbox();
+      const centeredX = x + (width - bbox.width) / 2;
+      title.move(centeredX, titleY);
     }
 
     // If this node has children, render them recursively
