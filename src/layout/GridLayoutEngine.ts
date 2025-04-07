@@ -174,53 +174,51 @@ export class GridLayoutEngine extends LayoutEngine {
     startY: number
   ): void {
     if (children.length === 0) return;
-    
+
     const columns = this.options.columns;
     const rows = Math.ceil(children.length / columns);
-    
-    // Calculate column widths and row heights
+
+    // First, calculate layout for each child at dummy position to get final size
+    children.forEach(child => {
+      this.calculateNodeLayout(child, 0, 0);
+    });
+
+    // Compute max width/height per grid cell based on actual child layout sizes
     const columnWidths: number[] = new Array(columns).fill(0);
     const rowHeights: number[] = new Array(rows).fill(0);
-    
-    // Calculate dimensions for each child
+
     children.forEach((child, index) => {
-      // Calculate layout for this child first (to know its dimensions)
       const row = Math.floor(index / columns);
       const col = index % columns;
-      
-      // Calculate initial dimensions (will be updated by calculateNodeLayout)
-      const { fontSize = 14, fontFamily = 'Arial, sans-serif' } = {};
-      const textMetrics = textMeasurer.measureText(child.data.name, fontSize, fontFamily);
-      
-      const width = Math.max(textMetrics.width + this.options.padding * 2, this.options.minNodeWidth);
-      const height = Math.max(textMetrics.height + this.options.padding * 2, this.options.minNodeHeight);
-      
-      // Track maximum width/height for each column/row
-      columnWidths[col] = Math.max(columnWidths[col], width);
-      rowHeights[row] = Math.max(rowHeights[row], height);
+
+      const childWidth = child.layout ? child.layout.width : 0;
+      const childHeight = child.layout ? child.layout.height : 0;
+
+      columnWidths[col] = Math.max(columnWidths[col], childWidth);
+      rowHeights[row] = Math.max(rowHeights[row], childHeight);
     });
-    
+
     // Calculate accumulated column positions
     const colPositions: number[] = [0];
     for (let i = 1; i < columns; i++) {
       colPositions[i] = colPositions[i - 1] + columnWidths[i - 1] + this.options.spacing;
     }
-    
+
     // Calculate accumulated row positions
     const rowPositions: number[] = [0];
     for (let i = 1; i < rows; i++) {
       rowPositions[i] = rowPositions[i - 1] + rowHeights[i - 1] + this.options.spacing;
     }
-    
-    // Position each child
+
+    // Position each child at correct position
     children.forEach((child, index) => {
       const row = Math.floor(index / columns);
       const col = index % columns;
-      
+
       const x = startX + colPositions[col];
       const y = startY + rowPositions[row];
-      
-      // Calculate the layout for this child and its descendants
+
+      // Re-calculate layout at final position (sizes stay the same)
       this.calculateNodeLayout(child, x, y);
     });
   }

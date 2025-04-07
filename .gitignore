@@ -27,6 +27,10 @@ logs/
 *.svg
 *.png
 *.pdf
+
 # OS specific
 .DS_Store
 Thumbs.db
+
+# Test coverage reports
+coverage/

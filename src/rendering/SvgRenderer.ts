@@ -1,4 +1,5 @@
 import { TreeNode, StyleOptions } from '../types';
+import { getDefaultMutedColorPalette } from '../utils/styleUtils';
 
 /**
  * Renderer that outputs SVG format
@@ -22,6 +23,8 @@ export class SvgRenderer {
   };
   
   private style: Required<StyleOptions>;
+  private leafColor: string | null = null;
+  private levelColors: string[] = [];
   
   /**
    * Create a new SVG renderer
@@ -30,6 +33,14 @@ export class SvgRenderer {
    */
   constructor(styleOptions: StyleOptions = {}) {
     this.style = { ...SvgRenderer.DEFAULT_STYLE, ...styleOptions };
+    
+    // Initialize level colors from palette if available
+    if (this.style.colorPalette && Object.keys(this.style.colorPalette).length > 0) {
+      this.levelColors = Object.values(this.style.colorPalette);
+    } else {
+      // Use the default muted color palette when no custom palette is provided
+      this.levelColors = getDefaultMutedColorPalette();
+    }
   }
   
   /**
@@ -49,7 +60,7 @@ export class SvgRenderer {
     
     // Render each root node and its children
     for (const root of rootNodes) {
-      this.renderNode(root);
+      this.renderNode(root, 0);
     }
     
     // Convert to string and clean up
@@ -98,8 +109,9 @@ export class SvgRenderer {
    * Render a single node and its children
    * 
    * @param node - The node to render
+   * @param level - Current hierarchy level (0 = root)
    */
-  private renderNode(node: TreeNode): void {
+  private renderNode(node: TreeNode, level: number): void {
     if (!node.layout) {
       console.warn(`Node ${node.data.id} has no layout information`);
       return;
@@ -110,10 +122,34 @@ export class SvgRenderer {
     // Create a group for this node
     const group = this.document.group();
     
-    // Determine background color based on root ancestor
+    // Determine if this is a leaf node (no children)
+    const isLeaf = node.children.length === 0;
+    
+    // Determine background color based on node level or if it's a leaf
     let bgColor = this.style.backgroundColor;
-    if (node.rootAncestor && this.style.colorPalette[node.rootAncestor]) {
-      bgColor = this.style.colorPalette[node.rootAncestor];
+    
+    if (isLeaf) {
+      // For leaf nodes, use the last color in the palette as a special leaf color
+      if (this.levelColors.length > 0) {
+        // Use the last color in the palette for leaf nodes
+        // If we haven't cached the leaf color yet, do so
+        if (this.leafColor === null) {
+          this.leafColor = this.levelColors[this.levelColors.length - 1];
+        }
+        bgColor = this.leafColor;
+      }
+    } else if (this.levelColors.length > 0) {
+      // For non-leaf nodes, use color based on level
+      // Exclude the last color (reserved for leaves)
+      const nonLeafColors = this.levelColors.length > 1 ? 
+                            this.levelColors.slice(0, -1) : 
+                            this.levelColors;
+      
+      if (nonLeafColors.length > 0) {
+        // Use the level to determine the color
+        const colorIndex = level % nonLeafColors.length;
+        bgColor = nonLeafColors[colorIndex];
+      }
     }
     
     // Draw the rectangle for this node
@@ -140,7 +176,7 @@ export class SvgRenderer {
     // If this node has children, render them
     if (node.children.length > 0) {
       for (const child of node.children) {
-        this.renderNode(child);
+        this.renderNode(child, level + 1);
       }
     }
   }

@@ -57,6 +57,26 @@ export function applyAutoTextColor(style: StyleOptions): StyleOptions {
 }
 
 /**
+ * Provides a default muted color scheme for diagrams
+ * To be used when no color palette is explicitly provided
+ * 
+ * @returns An array of muted hex color values
+ */
+export function getDefaultMutedColorPalette(): string[] {
+  return [
+    '#94a3b8', // Slate
+    '#64748b', // Slate (darker)
+    '#cbd5e1', // Slate (lighter)
+    '#a1a1aa', // Zinc
+    '#71717a', // Zinc (darker)
+    '#d4d4d8', // Zinc (lighter)
+    '#9ca3af', // Gray
+    '#6b7280', // Gray (darker)
+    '#e5e7eb'  // Gray (lighter) - also used for leaf nodes
+  ];
+}
+
+/**
  * Generates a color palette with pastel colors for a set of root node IDs
  * 
  * @param rootIds - Array of root node IDs
