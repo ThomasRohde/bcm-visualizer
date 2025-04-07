@@ -34,4 +34,7 @@ export interface StyleOptions {
 
   /** Fixed width for leaf nodes (overrides minNodeWidth for leaves if set) */
   leafNodeWidth?: number;
+
+  /** Vertical padding for parent node labels from the top edge */
+  parentLabelPaddingTop?: number;
 }

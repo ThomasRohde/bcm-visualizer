@@ -21,7 +21,8 @@ export class SvgRenderer {
     colorPalette: {},
     colorByLevel: false,
     padding: 10,
-    leafNodeWidth: 120
+    leafNodeWidth: 120,
+    parentLabelPaddingTop: 5 // New option for parent label vertical offset
   };
 
   private style: Required<StyleOptions>;
@@ -209,8 +210,8 @@ export class SvgRenderer {
         titleY = y + height / 2;
         dominantBaseline = 'middle'; // Use dominant-baseline for vertical centering
       } else {
-        // Top-align parent nodes (near the top padding)
-        titleY = y + this.style.padding;
+        // Horizontally center, vertically offset from top edge by parentLabelPaddingTop
+        titleY = y + this.style.parentLabelPaddingTop;
         dominantBaseline = 'hanging'; // Align top of text with the Y coordinate
       }
 

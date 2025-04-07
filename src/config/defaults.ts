@@ -25,7 +25,8 @@ export const DEFAULT_STYLE_OPTIONS: Required<StyleOptions> = {
   colorPalette: {},
   colorByLevel: false,
   padding: 10,
-  leafNodeWidth: 0 // Set to 0 to make leaf nodes auto-size to content
+  leafNodeWidth: 0, // Set to 0 to make leaf nodes auto-size to content
+  parentLabelPaddingTop: 0
 };
 
 /**
