@@ -1,0 +1,23 @@
+[
+  { "id": "channels", "name": "Channels", "parent": null },
+  
+  { "id": "digital-self-service", "name": "Digital Self-Service Channels", "parent": "channels" },
+  { "id": "web-mobile", "name": "Web & Mobile Banking", "parent": "digital-self-service" },
+  { "id": "external-info", "name": "External Information Exchange", "parent": "digital-self-service" },
+  { "id": "open-banking", "name": "Open Banking", "parent": "digital-self-service" },
+  { "id": "homepages", "name": "Homepages", "parent": "digital-self-service" },
+  
+  { "id": "communication", "name": "Communication Channels", "parent": "channels" },
+  { "id": "chat", "name": "Chat", "parent": "communication" },
+  { "id": "physical-mail", "name": "Physical Mail", "parent": "communication" },
+  { "id": "online-meetings", "name": "Online Meetings", "parent": "communication" },
+  { "id": "electronic-mail", "name": "Electronic Mail", "parent": "communication" },
+  { "id": "sms", "name": "SMS", "parent": "communication" },
+  
+  { "id": "human", "name": "Human Channels", "parent": "channels" },
+  { "id": "contact-centres", "name": "Contact Centres", "parent": "human" },
+  { "id": "help-desk", "name": "Help Desk", "parent": "human" },
+  { "id": "branch-services", "name": "Branch Services", "parent": "human" },
+  
+  { "id": "atms", "name": "ATMs", "parent": "channels" }
+]

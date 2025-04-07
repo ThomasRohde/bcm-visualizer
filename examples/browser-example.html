@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hierarchical Diagram Generator Example</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #333;
+    }
+    #diagram-container {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-top: 20px;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Hierarchical Diagram Generator Example</h1>
+  <div id="diagram-container"></div>
+
+  <!-- Include the UMD bundle (replace with actual path) -->
+  <script src="../dist/diagram-generator.umd.js"></script>
+  <script>
+    // Sample data
+    const data = [
+      { id: "channels", name: "Channels", parent: null },
+      
+      { id: "digital-self-service", name: "Digital Self-Service Channels", parent: "channels" },
+      { id: "web-mobile", name: "Web & Mobile Banking", parent: "digital-self-service" },
+      { id: "external-info", name: "External Information Exchange", parent: "digital-self-service" },
+      { id: "open-banking", name: "Open Banking", parent: "digital-self-service" },
+      { id: "homepages", name: "Homepages", parent: "digital-self-service" },
+      
+      { id: "communication", name: "Communication Channels", parent: "channels" },
+      { id: "chat", name: "Chat", parent: "communication" },
+      { id: "physical-mail", name: "Physical Mail", parent: "communication" },
+      { id: "online-meetings", name: "Online Meetings", parent: "communication" },
+      { id: "electronic-mail", name: "Electronic Mail", parent: "communication" },
+      { id: "sms", name: "SMS", parent: "communication" },
+      
+      { id: "human", name: "Human Channels", parent: "channels" },
+      { id: "contact-centres", name: "Contact Centres", parent: "human" },
+      { id: "help-desk", name: "Help Desk", parent: "human" },
+      { id: "branch-services", name: "Branch Services", parent: "human" },
+      
+      { id: "atms", name: "ATMs", parent: "channels" }
+    ];
+
+    // Configuration options
+    const options = {
+      layout: {
+        columns: 2,
+        padding: 12,
+        spacing: 8
+      },
+      style: {
+        fontFamily: 'Helvetica, Arial, sans-serif',
+        fontSize: 14,
+        backgroundColor: '#f5f5f5',
+        borderRadius: 8,
+        // Custom color palette for top-level nodes
+        colorPalette: {
+          'channels': '#e3f2fd'
+        }
+      }
+    };
+
+    // Render the diagram when the page loads
+    window.onload = function() {
+      const container = document.getElementById('diagram-container');
+      
+      // The UMD bundle exposes DiagramGenerator globally
+      DiagramGenerator.render(data, container, options)
+        .catch(error => {
+          console.error('Error rendering diagram:', error);
+          container.innerHTML = `<p style="color: red">Error: ${error.message}</p>`;
+        });
+    };
+  </script>
+</body>
+</html>

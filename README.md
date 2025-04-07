@@ -1,0 +1,211 @@
+# Hierarchical Diagram Generator
+
+A flexible tool to automatically create visual diagrams representing hierarchical data structures. The generator takes structured JSON data as input and produces diagrams styled with nested, colored, rectangular boxes. This is perfect for visualizing:
+
+- Organizational charts
+- Capability maps
+- Feature breakdowns
+- System architectures
+- Business domain models
+
+## Features
+
+- **Automated Generation**: Eliminate manual effort in creating and updating hierarchical diagrams
+- **Flexible Input**: Accept a clearly defined JSON structure representing the hierarchy
+- **Multiple Formats**: Generate diagrams in SVG, PNG, and PDF formats
+- **Customizable Styling**: Configure colors, fonts, spacing, and layout behavior
+- **Multiple Usage Modes**:
+  - Node.js library for direct integration into code
+  - Command-line tool for quick diagram generation
+  - Browser bundle for client-side visualization
+
+## Installation
+
+```bash
+# As a library
+npm install hierarchical-diagram-generator
+
+# As a global CLI tool
+npm install -g hierarchical-diagram-generator
+```
+
+## Input Format
+
+The generator accepts an array of JSON objects with the following structure:
+
+```json
+[
+  { "id": "root", "name": "Root Node", "parent": null },
+  { "id": "child1", "name": "Child 1", "parent": "root" },
+  { "id": "child2", "name": "Child 2", "parent": "root" },
+  { "id": "grandchild1", "name": "Grandchild 1", "parent": "child1" }
+]
+```
+
+Each node requires:
+- `id`: A unique string identifier
+- `name`: Display text for the node
+- `parent`: ID of the parent node, or `null` for root nodes
+
+## Usage
+
+### As a Node.js Library
+
+```javascript
+import { generateDiagram } from 'hierarchical-diagram-generator';
+
+const data = [
+  { id: 'root', name: 'Root Node', parent: null },
+  { id: 'child1', name: 'Child 1', parent: 'root' },
+  { id: 'child2', name: 'Child 2', parent: 'root' }
+];
+
+const options = {
+  layout: {
+    columns: 2,
+    padding: 10,
+    spacing: 5
+  },
+  style: {
+    fontFamily: 'Arial, sans-serif',
+    fontSize: 14,
+    backgroundColor: '#f0f0f0',
+    colorPalette: {
+      'root': '#e0f7fa'
+    }
+  },
+  format: 'svg'
+};
+
+// Generate SVG
+const svg = await generateDiagram(data, options);
+fs.writeFileSync('diagram.svg', svg);
+```
+
+### As a CLI Tool
+
+```bash
+hierarchical-diagram-generator -i input.json -o diagram.svg --format svg --columns 3 --color-palette '{"root":"#e0f7fa"}'
+```
+
+Available options:
+```
+Options:
+  --input, -i         Input JSON file path                       [string] [required]
+  --output, -o        Output file path               [string] [default: "diagram.svg"]
+  --format, -f        Output format (svg, png, pdf)
+                                                  [choices: "svg", "png", "pdf"] [default: "svg"]
+  --columns           Number of columns for child layout         [number] [default: 2]
+  --padding           Internal padding within boxes              [number] [default: 10]
+  --spacing           Spacing between sibling boxes              [number] [default: 5]
+  --font-family       Font family for node text      [string] [default: "Arial, sans-serif"]
+  --font-size         Font size for node text                    [number] [default: 14]
+  --font-color        Color for node text                  [string] [default: "#000000"]
+  --border-width      Width of node borders                       [number] [default: 1]
+  --border-color      Color of node borders                [string] [default: "#000000"]
+  --border-radius     Radius for rounded corners                  [number] [default: 5]
+  --background-color  Default background color for nodes   [string] [default: "#f0f0f0"]
+  --color-palette     JSON string mapping top-level node IDs to colors
+                                                           [string] [default: "{}"]
+  --help              Show help                                            [boolean]
+```
+
+### In Browser
+
+```html
+<div id="diagram-container"></div>
+
+<script src="diagram-generator.umd.js"></script>
+<script>
+  const data = [
+    { id: 'root', name: 'Root Node', parent: null },
+    { id: 'child1', name: 'Child 1', parent: 'root' },
+    { id: 'child2', name: 'Child 2', parent: 'root' }
+  ];
+  
+  const options = {
+    layout: { columns: 2 },
+    style: { 
+      fontFamily: 'Arial, sans-serif',
+      colorPalette: { 'root': '#e0f7fa' }
+    }
+  };
+  
+  DiagramGenerator.render(data, document.getElementById('diagram-container'), options);
+</script>
+```
+
+## Configuration Options
+
+### Layout Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `columns` | number | 2 | Number of columns for child nodes layout |
+| `padding` | number | 10 | Internal padding within boxes (px) |
+| `spacing` | number | 5 | Spacing between sibling boxes (px) |
+| `minNodeWidth` | number | 100 | Minimum width for a node (px) |
+| `minNodeHeight` | number | 40 | Minimum height for a node (px) |
+
+### Style Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `fontFamily` | string | 'Arial, sans-serif' | Font for node text |
+| `fontSize` | number | 14 | Font size for node text (px) |
+| `fontColor` | string | '#000000' | Text color |
+| `borderWidth` | number | 1 | Width of node borders (px) |
+| `borderColor` | string | '#000000' | Color of node borders |
+| `borderRadius` | number | 5 | Rounded corner radius for nodes (px) |
+| `backgroundColor` | string | '#f0f0f0' | Default background color |
+| `colorPalette` | object | {} | Maps top-level node IDs to colors |
+
+## Examples
+
+See the `examples` directory for sample code and usage patterns:
+
+- `nodejs-example.js`: Example Node.js library usage
+- `browser-example.html`: Example browser usage
+- `format-converter.js`: Utility for converting between formats
+
+## Development
+
+### Project Structure
+
+```
+hierarchical-diagram-generator/
+├── src/                      # TypeScript source code
+│   ├── types/                # Shared TypeScript interfaces
+│   ├── core/                 # Core logic: hierarchy building, orchestration
+│   ├── layout/               # Layout calculation logic
+│   ├── rendering/            # SVG rendering
+│   ├── output/               # Format conversion (SVG -> PNG, PDF)
+│   ├── utils/                # Utility functions
+│   ├── config/               # Default configurations
+│   ├── cli.ts                # Entry point for CLI tool
+│   └── browser.ts            # Entry point for browser bundle
+├── test/                     # Unit and integration tests
+│   ├── fixtures/             # Sample input JSON files
+│   └── *.spec.ts             # Test files
+└── examples/                 # Usage examples
+```
+
+### Building the Project
+
+```bash
+# Install dependencies
+npm install
+
+# Build the project
+npm run build
+
+# Run tests
+npm test
+
+# Create browser bundle
+npm run bundle
+```
+
+## License
+
+MIT

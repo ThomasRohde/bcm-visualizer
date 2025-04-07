@@ -1,0 +1,56 @@
+{
+  "name": "hierarchical-diagram-generator",
+  "version": "1.0.0",
+  "description": "Generate hierarchical diagrams from JSON data",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "hierarchical-diagram-generator": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "bundle": "rollup -c",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "diagram",
+    "visualization",
+    "hierarchy",
+    "svg",
+    "png",
+    "pdf"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@resvg/resvg-js": "^2.4.1",
+    "@svgdotjs/svg.js": "^3.1.2",
+    "pdfkit": "^0.13.0",
+    "svgdom": "^0.1.13",
+    "yargs": "^17.7.1"
+  },
+  "optionalDependencies": {
+    "canvas": "^2.11.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/node": "^18.15.11",
+    "@types/pdfkit": "^0.12.9",
+    "@types/yargs": "^17.0.24",
+    "@typescript-eslint/eslint-plugin": "^5.57.1",
+    "@typescript-eslint/parser": "^5.57.1",
+    "eslint": "^8.37.0",
+    "jest": "^29.5.0",
+    "prettier": "^2.8.7",
+    "rollup": "^3.20.2",
+    "rollup-plugin-typescript2": "^0.34.1",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.3"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

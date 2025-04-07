@@ -1,0 +1,79 @@
+[
+  { "id": "channels", "name": "Channels", "parent": null },
+  
+  { "id": "digital-self-service", "name": "Digital Self-Service Channels", "parent": "channels" },
+  { "id": "web-mobile", "name": "Web & Mobile Banking", "parent": "digital-self-service" },
+  { "id": "external-info", "name": "External Information Exchange", "parent": "digital-self-service" },
+  { "id": "open-banking", "name": "Open Banking", "parent": "digital-self-service" },
+  { "id": "homepages", "name": "Homepages", "parent": "digital-self-service" },
+  
+  { "id": "communication", "name": "Communication Channels", "parent": "channels" },
+  { "id": "chat", "name": "Chat", "parent": "communication" },
+  { "id": "physical-mail", "name": "Physical Mail", "parent": "communication" },
+  { "id": "online-meetings", "name": "Online Meetings", "parent": "communication" },
+  { "id": "electronic-mail", "name": "Electronic Mail", "parent": "communication" },
+  { "id": "sms", "name": "SMS", "parent": "communication" },
+  
+  { "id": "human", "name": "Human Channels", "parent": "channels" },
+  { "id": "contact-centres", "name": "Contact Centres", "parent": "human" },
+  { "id": "help-desk", "name": "Help Desk", "parent": "human" },
+  { "id": "branch-services", "name": "Branch Services", "parent": "human" },
+  
+  { "id": "atms", "name": "ATMs", "parent": "channels" },
+  
+  { "id": "relationships", "name": "Relationships", "parent": null },
+  
+  { "id": "partner-relationship", "name": "Partner Relationship Management", "parent": "relationships" },
+  { "id": "partner-mgmt", "name": "Partner Management", "parent": "partner-relationship" },
+  { "id": "partner-programs", "name": "Partner Programs", "parent": "partner-relationship" },
+  
+  { "id": "customer-relationship", "name": "Customer Relationship Management", "parent": "relationships" },
+  { "id": "customer-engagements", "name": "Customer Engagements", "parent": "customer-relationship" },
+  { "id": "event-marketing", "name": "Event Marketing", "parent": "customer-relationship" },
+  { "id": "upselling", "name": "Upselling", "parent": "customer-relationship" },
+  { "id": "crossselling", "name": "Crossselling", "parent": "customer-relationship" },
+  { "id": "customer-complaints", "name": "Customer Complaints", "parent": "customer-relationship" },
+  { "id": "customer-preferences", "name": "Customer Preferences", "parent": "customer-relationship" },
+  { "id": "customer-segmentation", "name": "Customer Segmentation", "parent": "customer-relationship" },
+  { "id": "customer-overview", "name": "Customer Financial Overview", "parent": "customer-relationship" },
+  
+  { "id": "involved-parties", "name": "Involved Parties", "parent": "relationships" },
+  { "id": "individuals", "name": "Individuals", "parent": "involved-parties" },
+  { "id": "businesses-orgs", "name": "Businesses and Organizations", "parent": "involved-parties" },
+  { "id": "roles-mandates", "name": "Roles and Mandates", "parent": "involved-parties" },
+  
+  { "id": "sales", "name": "Sales", "parent": "relationships" },
+  { "id": "customer-advisory", "name": "Customer Advisory", "parent": "sales" },
+  { "id": "customer-budgeting", "name": "Customer Budgeting", "parent": "sales" },
+  { "id": "product-ordering", "name": "Product Ordering", "parent": "sales" },
+  { "id": "leads-management", "name": "Leads Management", "parent": "sales" },
+  
+  { "id": "business-support", "name": "Business Support", "parent": null },
+  
+  { "id": "marketing-comms", "name": "Marketing & Communications", "parent": "business-support" },
+  { "id": "brand-comms", "name": "Brand and Corporate Communication", "parent": "marketing-comms" },
+  { "id": "external-comms", "name": "External Communications", "parent": "marketing-comms" },
+  { "id": "internal-comms", "name": "Internal Communications", "parent": "marketing-comms" },
+  { "id": "social-engagement", "name": "Social Engagement", "parent": "marketing-comms" },
+  
+  { "id": "content-mgmt", "name": "Enterprise Content Management", "parent": "business-support" },
+  { "id": "product-docs", "name": "Product Documentation", "parent": "content-mgmt" },
+  { "id": "customer-docs", "name": "Customer Documents", "parent": "content-mgmt" },
+  { "id": "digital-signing", "name": "Digital Signing", "parent": "content-mgmt" },
+  { "id": "internal-content", "name": "Internal Enterprise Content", "parent": "content-mgmt" },
+  
+  { "id": "product-mgmt", "name": "Product Management", "parent": "business-support" },
+  { "id": "product-pricing", "name": "Product Pricing", "parent": "product-mgmt" },
+  { "id": "product-development", "name": "Product Development", "parent": "product-mgmt" },
+  { "id": "product-catalog", "name": "Product Catalogue", "parent": "product-mgmt" },
+  { "id": "business-insight", "name": "Business Insight", "parent": "product-mgmt" },
+  
+  { "id": "market-data", "name": "Market Data", "parent": "business-support" },
+  { "id": "financial-markets", "name": "Financial Markets Market Data", "parent": "market-data" },
+  { "id": "credit-rating", "name": "Credit Rating", "parent": "market-data" },
+  { "id": "property-data", "name": "Property Data", "parent": "market-data" },
+  { "id": "geographic-data", "name": "Geographic Data", "parent": "market-data" },
+  { "id": "other-market-data", "name": "Other Market Data Types", "parent": "market-data" },
+  { "id": "legal-entities", "name": "Legal Entities and Natural Persons", "parent": "market-data" },
+  { "id": "machinery-data", "name": "Machinery, Vehicles and Equipment Data", "parent": "market-data" }
+]
