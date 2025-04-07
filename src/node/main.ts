@@ -28,6 +28,16 @@ const argv = yargs(hideBin(process.argv))
       choices: ['svg', 'png', 'pdf'],
       default: 'svg'
     },
+    'layout-type': {
+      describe: 'Layout algorithm to use (grid or aspectRatio)',
+      choices: ['grid', 'aspectRatio'],
+      default: 'grid'
+    },
+    'target-aspect-ratio': {
+      describe: 'Target aspect ratio for aspectRatio layout (width/height)',
+      type: 'number',
+      default: 1.78
+    },
     'columns': {
       describe: 'Number of columns for child layout',
       type: 'number',
@@ -119,9 +129,11 @@ async function run() {
     // Configure options
     const options: DiagramOptions = {
       layout: {
+        layoutType: (argv as any)['layout-type'] as string,
         columns: argv.columns as number,
         padding: argv.padding as number,
-        spacing: argv.spacing as number
+        spacing: argv.spacing as number,
+        targetAspectRatio: (argv as any)['target-aspect-ratio'] as number
       },
       style: {
         fontFamily: (argv as any)['font-family'] as string,
