@@ -290,16 +290,18 @@ export class SvgRenderer {
     // Create separate text elements for each line for maximum compatibility
     lines.forEach((line, index) => {
       const lineY = startY + (index * lineHeight);
-      
+      const lineWidth = this.estimateTextWidth(line, this.style.fontSize, this.style.fontFamily);
+      const lineX = x + (width - lineWidth) / 2;
+
       group.text(line)
         .font({
           family: this.style.fontFamily,
           size: this.style.fontSize,
-          anchor: 'middle', // Center text horizontally
+          anchor: 'start', // Align from the starting x
         })
         .attr('dominant-baseline', 'hanging') // Align from top
         .fill(this.style.fontColor)
-        .move(centerX, lineY);
+        .move(lineX, lineY);
     });
   }
 
