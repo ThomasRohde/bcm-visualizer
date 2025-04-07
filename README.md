@@ -96,6 +96,14 @@ fs.writeFileSync('diagram.svg', svg);
 hierarchical-diagram-generator -i input.json -o diagram.svg --format svg --columns 3 --color-palette '{"0":"#f0f0f0","1":"#d0e8f2","2":"#e6f5d0","leaf":"#ffe6e6"}' --color-by-level
 ```
 
+#### Using Browser-Example Color Palette
+
+To use the same color palette as in the browser-example.html:
+
+```bash
+hierarchical-diagram-generator -i input.json -o diagram.png --format png --leaf-node-width 200 --png-label-offset 5 --columns 3 --color-by-level --color-palette '{"0":"#f8f8f8","1":"#d0e8f2","2":"#e6f5d0","3":"#f9e2d2","leaf":"#ffe6e6"}' --border-color "#888888"
+```
+
 Available options:
 ```
 Options:
@@ -119,6 +127,10 @@ Options:
   --leaf-node-width   Fixed width for leaf nodes           [number] [default: 120]
   --png-label-offset  Vertical offset for labels in PNG format (fixes alignment issues)
                                                            [number] [default: 0]
+  --layout-type       Layout algorithm to use (grid or aspectRatio)
+                                     [choices: "grid", "aspectRatio"] [default: "grid"]
+  --target-aspect-ratio  Target aspect ratio for aspectRatio layout (width/height)
+                                                           [number] [default: 1.78]
   --help              Show help                                            [boolean]
 ```
 
