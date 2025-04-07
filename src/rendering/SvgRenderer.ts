@@ -29,6 +29,8 @@ export class SvgRenderer {
   private style: Required<StyleOptions>;
   private leafColor: string | null = null;
   private levelColors: string[] = [];
+  private fontSizeScale: number = 1.2; // Scale factor between hierarchy levels
+  private maxDepth: number = 0; // To be calculated during first render pass
 
   /**
    * Create a new SVG renderer
@@ -61,6 +63,9 @@ export class SvgRenderer {
 
     // Create an SVG document with the specified dimensions
     this.document = this.svg.SVG().size(width, height);
+    
+    // Calculate the maximum depth in the hierarchy tree
+    this.maxDepth = this.calculateMaxDepth(rootNodes);
 
     // Render each root node and its children
     for (const root of rootNodes) {
@@ -144,6 +149,9 @@ export class SvgRenderer {
 
     // Determine if this is a leaf node (no children)
     const isLeaf = node.children.length === 0;
+    
+    // Calculate appropriate font size based on node depth
+    const fontSize = this.calculateFontSize(isLeaf, level);
 
     // Determine background color based on styling options
     let bgColor = this.style.backgroundColor;
@@ -198,7 +206,7 @@ export class SvgRenderer {
 
     // Check if this is a leaf node with a fixed width that needs text wrapping
     if (isLeaf && this.style.leafNodeWidth) {
-      this.renderWrappedText(group, node.data.name, x, y, width, height);
+      this.renderWrappedText(group, node.data.name, x, y, width, height, fontSize);
     } else {
       const centerX = x + width / 2;
       let titleY: number;
@@ -206,7 +214,7 @@ export class SvgRenderer {
 
       if (isLeaf) {
         // Apply PNG label vertical offset for leaf nodes
-        titleY = y + height / 2 - this.style.fontSize / 2 + this.style.pngLabelYOffset; // adjust for better vertical centering
+        titleY = y + height / 2 - fontSize / 2 + this.style.pngLabelYOffset; // adjust for better vertical centering
         dominantBaseline = 'middle';
       } else {
         // Apply PNG label vertical offset for parent nodes
@@ -217,7 +225,7 @@ export class SvgRenderer {
       const title = group.text(node.data.name)
         .font({
           family: this.style.fontFamily,
-          size: this.style.fontSize,
+          size: fontSize, // Use the calculated font size
           anchor: 'start', // start to allow manual centering
           leading: '1.2em'
         })
@@ -252,11 +260,12 @@ export class SvgRenderer {
    * @param y - Y position of the node
    * @param width - Width of the node
    * @param height - Height of the node
+   * @param fontSize - Font size to use for the text
    */
-  private renderWrappedText(group: any, text: string, x: number, y: number, width: number, height: number): void {
+  private renderWrappedText(group: any, text: string, x: number, y: number, width: number, height: number, fontSize: number = this.style.fontSize): void {
     // Calculate effective width (account for padding)
     const effectiveWidth = width - (this.style.padding * 2);
-    const lineHeight = this.style.fontSize * 1.2;
+    const lineHeight = fontSize * 1.2;
     
     // Split the text into words
     const words = text.split(' ');
@@ -269,7 +278,7 @@ export class SvgRenderer {
       const testLine = currentLine ? `${currentLine} ${word}` : word;
       
       // Check if adding this word would exceed the width
-      const estimatedWidth = this.estimateTextWidth(testLine, this.style.fontSize, this.style.fontFamily);
+      const estimatedWidth = this.estimateTextWidth(testLine, fontSize, this.style.fontFamily);
       
       if (estimatedWidth > effectiveWidth && i > 0) {
         lines.push(currentLine);
@@ -300,7 +309,7 @@ export class SvgRenderer {
       const textElement = group.text(line)
         .font({
           family: this.style.fontFamily,
-          size: this.style.fontSize,
+          size: fontSize,
           anchor: 'start',
         })
         .attr('dominant-baseline', 'hanging')
@@ -358,5 +367,45 @@ export class SvgRenderer {
     // Add a small buffer (e.g., 2-5%) for better wrapping reliability,
     // as font rendering can vary slightly.
     return totalWidth * 1.02 - 2; // Slightly reduce buffer and subtract 2px for better centering
+  }
+
+  /**
+   * Calculate the maximum depth of the hierarchy
+   * 
+   * @param rootNodes - Root nodes of the tree
+   * @returns Maximum depth of the hierarchy
+   */
+  private calculateMaxDepth(rootNodes: TreeNode[]): number {
+    let maxDepth = 0;
+    
+    const traverseNode = (node: TreeNode, currentDepth: number) => {
+      maxDepth = Math.max(maxDepth, currentDepth);
+      node.children.forEach(child => traverseNode(child, currentDepth + 1));
+    };
+    
+    rootNodes.forEach(root => traverseNode(root, 0));
+    
+    return maxDepth;
+  }
+
+  /**
+   * Calculate the font size based on node depth
+   * Leaf nodes use the configured fontSize
+   * Non-leaf nodes use a larger font size based on their depth
+   * 
+   * @param isLeaf - Whether the node is a leaf node
+   * @param level - Current level in the hierarchy (0 = root)
+   * @returns Font size in pixels
+   */
+  private calculateFontSize(isLeaf: boolean, level: number): number {
+    if (isLeaf) {
+      return this.style.fontSize; // Use configured font size for leaf nodes
+    }
+    
+    // For non-leaf nodes, scale font size based on level
+    // Higher levels (closer to root) get larger font sizes
+    // Start from the leaf font size and work backwards
+    const levelsFromLeaf = Math.max(0, this.maxDepth - level);
+    return this.style.fontSize * Math.pow(this.fontSizeScale, levelsFromLeaf);
   }
 }
