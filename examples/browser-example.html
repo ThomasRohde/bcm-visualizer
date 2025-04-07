@@ -155,15 +155,16 @@ async function renderDiagram() {
 
   const layoutOptions = {
     padding: parseInt(document.getElementById('padding').value, 10),
-    spacing: parseInt(document.getElementById('spacing').value, 10)
+    spacing: parseInt(document.getElementById('spacing').value, 10),
+    layoutType: layoutType // Add explicit layoutType property
   };
   
-  // Set layout options based on selected type
+  // Set additional layout options based on selected type
   if (layoutType === 'grid') {
     const columnsValue = parseInt(document.getElementById('columns').value, 10);
     layoutOptions.columns = columnsValue;
     console.log(`Using Grid Layout with ${columnsValue} columns`, layoutOptions);
-    // Force targetAspectRatio to be undefined to ensure GridLayoutEngine is used
+    // We can keep this for backward compatibility, but it's not necessary with layoutType
     layoutOptions.targetAspectRatio = undefined;
   } else if (layoutType === 'aspectRatio') {
     const aspectRatioValue = parseFloat(document.getElementById('aspectRatio').value);

@@ -13,7 +13,8 @@ export abstract class LayoutEngine {
     spacing: 5,
     minNodeWidth: 100,
     minNodeHeight: 40,
-    targetAspectRatio: 16 / 9
+    targetAspectRatio: 16 / 9,
+    layoutType: 'grid'
   };
   
   /**

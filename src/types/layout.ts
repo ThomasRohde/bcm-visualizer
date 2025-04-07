@@ -65,4 +65,7 @@ export interface LayoutOptions {
   
   /** Target aspect ratio (width/height) for the layout */
   targetAspectRatio?: number;
+  
+  /** The type of layout algorithm to use */
+  layoutType?: string;
 }

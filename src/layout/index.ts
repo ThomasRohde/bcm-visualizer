@@ -18,9 +18,28 @@ export function createLayoutEngine(
   layoutOptions: LayoutOptions = {},
   styleOptions?: StyleOptions
 ): LayoutEngine {
-  // Use AspectRatioGridLayoutEngine if targetAspectRatio is provided
+  // First, check for explicit layout type
+  if (layoutOptions.layoutType) {
+    switch (layoutOptions.layoutType.toLowerCase()) {
+      case 'grid':
+        return new GridLayoutEngine(layoutOptions, styleOptions);
+      case 'aspectratio':
+      case 'aspect-ratio':
+        return new AspectRatioGridLayoutEngine(layoutOptions, styleOptions);
+      // Add new layout engines here as they are implemented
+      // case 'radial':
+      //   return new RadialLayoutEngine(layoutOptions, styleOptions);
+      default:
+        console.warn(`Unknown layout type: ${layoutOptions.layoutType}, falling back to grid layout`);
+        return new GridLayoutEngine(layoutOptions, styleOptions);
+    }
+  }
+  
+  // For backward compatibility: use AspectRatioGridLayoutEngine if targetAspectRatio is provided
   if (layoutOptions.targetAspectRatio !== undefined) {
     return new AspectRatioGridLayoutEngine(layoutOptions, styleOptions);
   }
+  
+  // Default to GridLayoutEngine
   return new GridLayoutEngine(layoutOptions, styleOptions);
 }
