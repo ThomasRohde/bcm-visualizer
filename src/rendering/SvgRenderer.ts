@@ -22,7 +22,8 @@ export class SvgRenderer {
     colorByLevel: false,
     padding: 10,
     leafNodeWidth: 120,
-    parentLabelPaddingTop: 5 // New option for parent label vertical offset
+    parentLabelPaddingTop: 5, // New option for parent label vertical offset
+    pngLabelYOffset: 0 // Default no offset for PNG label positioning
   };
 
   private style: Required<StyleOptions>;
@@ -204,10 +205,12 @@ export class SvgRenderer {
       let dominantBaseline: string | null = null;
 
       if (isLeaf) {
-        titleY = y + height / 2 - this.style.fontSize / 2; // adjust for better vertical centering
+        // Apply PNG label vertical offset for leaf nodes
+        titleY = y + height / 2 - this.style.fontSize / 2 + this.style.pngLabelYOffset; // adjust for better vertical centering
         dominantBaseline = 'middle';
       } else {
-        titleY = y + this.style.parentLabelPaddingTop;
+        // Apply PNG label vertical offset for parent nodes
+        titleY = y + this.style.parentLabelPaddingTop + this.style.pngLabelYOffset + 2;
         dominantBaseline = 'hanging';
       }
 
@@ -283,7 +286,8 @@ export class SvgRenderer {
     
     // Calculate vertical position to center the text block
     const totalTextHeight = lines.length * lineHeight;
-    const startY = y + (height - totalTextHeight) / 2;
+    // Apply PNG label Y-offset for wrapped text
+    const startY = y + (height - totalTextHeight) / 2 + this.style.pngLabelYOffset;
     const centerX = x + width / 2;
     
     // For debugging - add a small indicator of the calculated position

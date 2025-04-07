@@ -116,6 +116,9 @@ Options:
   --color-palette     JSON string mapping node IDs or levels to colors
                                                            [string] [default: "{}"]
   --color-by-level    Enable level-based coloring          [boolean] [default: false]
+  --leaf-node-width   Fixed width for leaf nodes           [number] [default: 120]
+  --png-label-offset  Vertical offset for labels in PNG format (fixes alignment issues)
+                                                           [number] [default: 0]
   --help              Show help                                            [boolean]
 ```
 
@@ -176,6 +179,9 @@ Options:
 | `colorPalette` | object | {} | Maps node IDs or hierarchy levels to colors |
 | `colorByLevel` | boolean | false | When true, uses colorPalette keys as hierarchy levels (0, 1, 2, etc.) instead of node IDs |
 | `padding` | number | 10 | Internal padding within nodes (px) |
+| `leafNodeWidth` | number | 0 | Fixed width for leaf nodes (px), 0 means auto-size |
+| `parentLabelPaddingTop` | number | 0 | Vertical padding for parent node labels from the top edge (px) |
+| `pngLabelYOffset` | number | 0 | Vertical offset for labels in PNG format (fixes alignment issues) (px) |
 
 ## Coloring Strategies
 

@@ -28,7 +28,8 @@ export const DEFAULT_STYLE_OPTIONS: Required<StyleOptions> = {
   colorByLevel: false,
   padding: 10,
   leafNodeWidth: 0, // Set to 0 to make leaf nodes auto-size to content
-  parentLabelPaddingTop: 0
+  parentLabelPaddingTop: 0,
+  pngLabelYOffset: 0 // Default to no offset for PNG label positioning
 };
 
 /**

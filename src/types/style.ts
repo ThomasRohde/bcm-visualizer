@@ -37,4 +37,7 @@ export interface StyleOptions {
 
   /** Vertical padding for parent node labels from the top edge */
   parentLabelPaddingTop?: number;
+  
+  /** Additional vertical offset for labels in PNG format (fixes alignment issues) */
+  pngLabelYOffset?: number;
 }

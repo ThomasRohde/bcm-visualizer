@@ -97,6 +97,11 @@ const argv = yargs(hideBin(process.argv))
       describe: 'Fixed width for leaf nodes (overrides minNodeWidth)',
       type: 'number',
       default: DEFAULT_DIAGRAM_OPTIONS.style.leafNodeWidth
+    },
+    'png-label-offset': {
+      describe: 'Vertical offset for labels in PNG format (fixes alignment issues)',
+      type: 'number',
+      default: 0
     }
   })
   .help()
@@ -146,7 +151,8 @@ async function run() {
         colorPalette,
         leafNodeWidth: (argv as any)['leaf-node-width'] !== undefined ? 
           (argv as any)['leaf-node-width'] as number : 
-          DEFAULT_DIAGRAM_OPTIONS.style.leafNodeWidth
+          DEFAULT_DIAGRAM_OPTIONS.style.leafNodeWidth,
+        pngLabelYOffset: (argv as any)['png-label-offset'] as number
       },
       format: argv.format as OutputFormat,
       outputPath: argv.output as string
