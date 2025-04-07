@@ -1,13 +1,13 @@
 {
   "name": "hierarchical-diagram-generator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Generate hierarchical diagrams from JSON data",
   "type": "module",
   "main": "dist/node/index.js",
   "types": "dist/node/index.d.ts",
   "browser": "dist/browser/diagram-generator.esm.js",
   "bin": {
-    "hierarchical-diagram-generator": "dist/node/main.js"
+    "hierarchical-diagram-generator": "dist/node/node/main.js"
   },
   "exports": {
     ".": {
