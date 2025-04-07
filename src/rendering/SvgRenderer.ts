@@ -290,18 +290,22 @@ export class SvgRenderer {
     // Create separate text elements for each line for maximum compatibility
     lines.forEach((line, index) => {
       const lineY = startY + (index * lineHeight);
-      const lineWidth = this.estimateTextWidth(line, this.style.fontSize, this.style.fontFamily);
-      const lineX = x + (width - lineWidth) / 2;
 
-      group.text(line)
+      const textElement = group.text(line)
         .font({
           family: this.style.fontFamily,
           size: this.style.fontSize,
-          anchor: 'start', // Align from the starting x
+          anchor: 'start',
         })
-        .attr('dominant-baseline', 'hanging') // Align from top
+        .attr('dominant-baseline', 'hanging')
         .fill(this.style.fontColor)
-        .move(lineX, lineY);
+        .move(0, lineY) // temporarily at x=0
+        .opacity(0); // hide initially
+
+      const bbox = textElement.bbox();
+      const centeredX = x + (width - bbox.width) / 2;
+
+      textElement.move(centeredX, lineY).opacity(1);
     });
   }
 
@@ -345,8 +349,8 @@ export class SvgRenderer {
       totalWidth += fontSize * factor;
     }
 
-    // Add a small buffer (e.g., 5-10%) for better wrapping reliability,
+    // Add a small buffer (e.g., 2-5%) for better wrapping reliability,
     // as font rendering can vary slightly.
-    return totalWidth * 1.05;
+    return totalWidth * 1.02 - 2; // Slightly reduce buffer and subtract 2px for better centering
   }
 }
