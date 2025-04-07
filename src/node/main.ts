@@ -93,6 +93,11 @@ const argv = yargs(hideBin(process.argv))
       type: 'string',
       default: '{}'
     },
+    'color-by-level': {
+      describe: 'Enable level-based coloring',
+      type: 'boolean',
+      default: false
+    },
     'leaf-node-width': {
       describe: 'Fixed width for leaf nodes (overrides minNodeWidth)',
       type: 'number',
@@ -149,6 +154,7 @@ async function run() {
         borderRadius: (argv as any)['border-radius'] as number,
         backgroundColor: (argv as any)['background-color'] as string,
         colorPalette,
+        colorByLevel: (argv as any)['color-by-level'] as boolean,
         leafNodeWidth: (argv as any)['leaf-node-width'] !== undefined ? 
           (argv as any)['leaf-node-width'] as number : 
           DEFAULT_DIAGRAM_OPTIONS.style.leafNodeWidth,
