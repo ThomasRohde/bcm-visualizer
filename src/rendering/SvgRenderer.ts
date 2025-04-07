@@ -20,7 +20,8 @@ export class SvgRenderer {
     backgroundColor: '#f0f0f0',
     colorPalette: {},
     colorByLevel: false,
-    padding: 10
+    padding: 10,
+    leafNodeWidth: 120
   };
   
   private style: Required<StyleOptions>;

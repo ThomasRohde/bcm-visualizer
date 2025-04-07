@@ -82,6 +82,11 @@ const argv = yargs(hideBin(process.argv))
       describe: 'JSON string mapping top-level node IDs to colors',
       type: 'string',
       default: '{}'
+    },
+    'leaf-node-width': {
+      describe: 'Fixed width for leaf nodes (overrides minNodeWidth)',
+      type: 'number',
+      default: DEFAULT_DIAGRAM_OPTIONS.style.leafNodeWidth
     }
   })
   .help()
@@ -126,7 +131,8 @@ async function run() {
         borderColor: (argv as any)['border-color'] as string,
         borderRadius: (argv as any)['border-radius'] as number,
         backgroundColor: (argv as any)['background-color'] as string,
-        colorPalette
+        colorPalette,
+        leafNodeWidth: (argv as any)['leaf-node-width'] as number
       },
       format: argv.format as OutputFormat,
       outputPath: argv.output as string

@@ -6,6 +6,16 @@ import textMeasurer from '../utils/textMeasure.js';
  * Layout engine that arranges children in a grid/flow layout
  */
 export class GridLayoutEngine extends LayoutEngine {
+  private styleOptions?: import('../types/index.js').StyleOptions;
+
+  constructor(
+    layoutOptions: import('../types/index.js').LayoutOptions = {},
+    styleOptions?: import('../types/index.js').StyleOptions
+  ) {
+    super(layoutOptions);
+    this.styleOptions = styleOptions;
+  }
+
   /**
    * Calculate layout for each node in the tree
    * 
@@ -47,11 +57,21 @@ export class GridLayoutEngine extends LayoutEngine {
     const titleMetrics = textMeasurer.measureText(node.data.name, fontSize, fontFamily);
     const titleHeight = titleMetrics.height + this.options.padding * 2;
     
-    // Start with minimum dimensions
-    let width = Math.max(titleMetrics.width + this.options.padding * 2, this.options.minNodeWidth);
+    // Determine if leaf node
+    const isLeaf = node.children.length === 0;
+
+    // Fixed width for leaf nodes if style option is set
+    const leafNodeWidth = (this as any).styleOptions?.leafNodeWidth;
+
+    let width: number;
+    if (isLeaf && typeof leafNodeWidth === 'number' && leafNodeWidth > 0) {
+      width = leafNodeWidth;
+    } else {
+      width = Math.max(titleMetrics.width + this.options.padding * 2, this.options.minNodeWidth);
+    }
     
     // Calculate layout for children (if any)
-    if (node.children.length > 0) {
+    if (!isLeaf) {
       const childLayouts = this.calculateChildrenLayout(node.children, this.options.columns);
       
       // Content area starts after the title

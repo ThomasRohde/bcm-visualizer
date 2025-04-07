@@ -32,7 +32,7 @@ export async function generateDiagram(
     const rootNodes = buildHierarchy(nodes);
     
     // Calculate layout
-    const layoutEngine = createLayoutEngine(mergedOptions.layout);
+    const layoutEngine = createLayoutEngine(mergedOptions.layout, mergedOptions.style);
     const nodesWithLayout = layoutEngine.calculateLayout(rootNodes);
     
     // Get diagram dimensions

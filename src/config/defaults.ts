@@ -24,7 +24,8 @@ export const DEFAULT_STYLE_OPTIONS: Required<StyleOptions> = {
   backgroundColor: '#f0f0f0',
   colorPalette: {},
   colorByLevel: false,
-  padding: 10
+  padding: 10,
+  leafNodeWidth: 120
 };
 
 /**

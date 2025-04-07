@@ -103,6 +103,13 @@ body {
     <label>Leaf Color</label>
     <input type="color" id="colorLeaf" value="#ffe6e6" />
   </div>
+  <div class="control">
+    <label>Leaf Node Width <span id="leafNodeWidthVal">120</span></label>
+    <input type="range" id="leafNodeWidth" min="50" max="300" value="120" />
+  </div>
+  <div class="control">
+    <label><input type="checkbox" id="fixedLeafWidthToggle" checked /> Fixed Leaf Width</label>
+  </div>
 </div>
 <div id="diagram-container"></div>
 <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.1.2/dist/svg.min.js"></script>
@@ -131,6 +138,9 @@ const data = [
 async function renderDiagram() {
   const container = document.getElementById('diagram-container');
   container.innerHTML = '';
+  const fixedLeafWidthEnabled = document.getElementById('fixedLeafWidthToggle').checked;
+  const leafNodeWidthValue = parseInt(document.getElementById('leafNodeWidth').value, 10);
+
   const options = {
     layout: {
       columns: parseInt(document.getElementById('columns').value, 10),
@@ -150,7 +160,8 @@ async function renderDiagram() {
         2: document.getElementById('color2').value,
         3: document.getElementById('color3').value,
         leaf: document.getElementById('colorLeaf').value
-      }
+      },
+      leafNodeWidth: fixedLeafWidthEnabled ? leafNodeWidthValue : undefined
     }
   };
   try {

@@ -31,4 +31,7 @@ export interface StyleOptions {
   
   /** Internal padding within boxes */
   padding?: number;
+
+  /** Fixed width for leaf nodes (overrides minNodeWidth for leaves if set) */
+  leafNodeWidth?: number;
 }
