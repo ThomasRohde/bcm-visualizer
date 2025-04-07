@@ -1,98 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hierarchical Diagram Generator Example</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    h1 {
-      color: #333;
-    }
-    #diagram-container {
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-top: 20px;
-      overflow: auto;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hierarchical Diagram Generator Example</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  display: flex;
+  height: 100vh;
+}
+#sidebar {
+  width: 260px;
+  background: #f4f4f4;
+  padding: 15px;
+  overflow-y: auto;
+  border-right: 1px solid #ccc;
+}
+#sidebar h2 {
+  font-size: 16px;
+  margin-top: 0;
+}
+.control {
+  margin-bottom: 15px;
+}
+.control label {
+  font-size: 13px;
+  margin-bottom: 5px;
+  display: block;
+}
+.control input[type=range] {
+  width: 100%;
+}
+.control input[type=color],
+.control select {
+  width: 100%;
+  padding: 3px;
+}
+#diagram-container {
+  flex-grow: 1;
+  overflow: auto;
+  padding: 10px;
+}
+</style>
 </head>
 <body>
-  <h1>Hierarchical Diagram Generator Example</h1>
-  <div id="diagram-container"></div>
+<div id="sidebar">
+  <h2>Options</h2>
+  <div class="control">
+    <label>Columns <span id="columnsVal">2</span></label>
+    <input type="range" id="columns" min="1" max="10" value="2" />
+  </div>
+  <div class="control">
+    <label>Padding <span id="paddingVal">12</span></label>
+    <input type="range" id="padding" min="0" max="50" value="12" />
+  </div>
+  <div class="control">
+    <label>Spacing <span id="spacingVal">8</span></label>
+    <input type="range" id="spacing" min="0" max="50" value="8" />
+  </div>
+  <div class="control">
+    <label>Font Size <span id="fontSizeVal">14</span></label>
+    <input type="range" id="fontSize" min="8" max="36" value="14" />
+  </div>
+  <div class="control">
+    <label>Border Radius <span id="borderRadiusVal">5</span></label>
+    <input type="range" id="borderRadius" min="0" max="20" value="5" />
+  </div>
+  <div class="control">
+    <label>Border Width <span id="borderWidthVal">1</span></label>
+    <input type="range" id="borderWidth" min="0" max="5" value="1" />
+  </div>
+  <div class="control">
+    <label>Border Color</label>
+    <input type="color" id="borderColor" value="#888888" />
+  </div>
+  <div class="control">
+    <label>Color by Level</label>
+    <select id="colorByLevel">
+      <option value="true" selected>Yes</option>
+      <option value="false">No</option>
+    </select>
+  </div>
+  <div class="control">
+    <label>Root Color</label>
+    <input type="color" id="color0" value="#f8f8f8" />
+  </div>
+  <div class="control">
+    <label>Level 1 Color</label>
+    <input type="color" id="color1" value="#d0e8f2" />
+  </div>
+  <div class="control">
+    <label>Level 2 Color</label>
+    <input type="color" id="color2" value="#e6f5d0" />
+  </div>
+  <div class="control">
+    <label>Level 3 Color</label>
+    <input type="color" id="color3" value="#f9e2d2" />
+  </div>
+  <div class="control">
+    <label>Leaf Color</label>
+    <input type="color" id="colorLeaf" value="#ffe6e6" />
+  </div>
+</div>
+<div id="diagram-container"></div>
+<script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.1.2/dist/svg.min.js"></script>
+<script src="../dist/browser/diagram-generator.umd.js"></script>
+<script>
+const data = [
+  { id: "channels", name: "Channels", parent: null },
+  { id: "digital-self-service", name: "Digital Self-Service Channels", parent: "channels" },
+  { id: "web-mobile", name: "Web & Mobile Banking", parent: "digital-self-service" },
+  { id: "external-info", name: "External Information Exchange", parent: "digital-self-service" },
+  { id: "open-banking", name: "Open Banking", parent: "digital-self-service" },
+  { id: "homepages", name: "Homepages", parent: "digital-self-service" },
+  { id: "communication", name: "Communication Channels", parent: "channels" },
+  { id: "chat", name: "Chat", parent: "communication" },
+  { id: "physical-mail", name: "Physical Mail", parent: "communication" },
+  { id: "online-meetings", name: "Online Meetings", parent: "communication" },
+  { id: "electronic-mail", name: "Electronic Mail", parent: "communication" },
+  { id: "sms", name: "SMS", parent: "communication" },
+  { id: "human", name: "Human Channels", parent: "channels" },
+  { id: "contact-centres", name: "Contact Centres", parent: "human" },
+  { id: "help-desk", name: "Help Desk", parent: "human" },
+  { id: "branch-services", name: "Branch Services", parent: "human" },
+  { id: "atms", name: "ATMs", parent: "channels" }
+];
 
-  <!-- Include the SVG.js library -->
-  <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.1.2/dist/svg.min.js"></script>
-  
-  <!-- Include the UMD bundle -->
-  <script src="../dist/browser/diagram-generator.umd.js"></script>
-  <script>
-    // Sample data
-    const data = [
-      { id: "channels", name: "Channels", parent: null },
-      
-      { id: "digital-self-service", name: "Digital Self-Service Channels", parent: "channels" },
-      { id: "web-mobile", name: "Web & Mobile Banking", parent: "digital-self-service" },
-      { id: "external-info", name: "External Information Exchange", parent: "digital-self-service" },
-      { id: "open-banking", name: "Open Banking", parent: "digital-self-service" },
-      { id: "homepages", name: "Homepages", parent: "digital-self-service" },
-      
-      { id: "communication", name: "Communication Channels", parent: "channels" },
-      { id: "chat", name: "Chat", parent: "communication" },
-      { id: "physical-mail", name: "Physical Mail", parent: "communication" },
-      { id: "online-meetings", name: "Online Meetings", parent: "communication" },
-      { id: "electronic-mail", name: "Electronic Mail", parent: "communication" },
-      { id: "sms", name: "SMS", parent: "communication" },
-      
-      { id: "human", name: "Human Channels", parent: "channels" },
-      { id: "contact-centres", name: "Contact Centres", parent: "human" },
-      { id: "help-desk", name: "Help Desk", parent: "human" },
-      { id: "branch-services", name: "Branch Services", parent: "human" },
-      
-      { id: "atms", name: "ATMs", parent: "channels" }
-    ];
-
-    // Configuration options
-    const options = {
-      layout: {
-        columns: 2,
-        padding: 12,
-        spacing: 8
-      },
-      style: {
-        fontFamily: 'Helvetica, Arial, sans-serif',
-        fontSize: 14,
-        borderRadius: 5,
-        borderWidth: 1,
-        borderColor: '#888888',
-        // Color palette based on levels
-        colorByLevel: true, // Enable level-based coloring
-        colorPalette: {
-          0: '#f8f8f8',      // Root level
-          1: '#d0e8f2',      // First level
-          2: '#e6f5d0',      // Second level
-          3: '#f9e2d2',      // Third level
-          'leaf': '#ffe6e6'  // Special color for leaf nodes
-        }
+async function renderDiagram() {
+  const container = document.getElementById('diagram-container');
+  container.innerHTML = '';
+  const options = {
+    layout: {
+      columns: parseInt(document.getElementById('columns').value, 10),
+      padding: parseInt(document.getElementById('padding').value, 10),
+      spacing: parseInt(document.getElementById('spacing').value, 10)
+    },
+    style: {
+      fontFamily: 'Helvetica, Arial, sans-serif',
+      fontSize: parseInt(document.getElementById('fontSize').value, 10),
+      borderRadius: parseInt(document.getElementById('borderRadius').value, 10),
+      borderWidth: parseInt(document.getElementById('borderWidth').value, 10),
+      borderColor: document.getElementById('borderColor').value,
+      colorByLevel: document.getElementById('colorByLevel').value === 'true',
+      colorPalette: {
+        0: document.getElementById('color0').value,
+        1: document.getElementById('color1').value,
+        2: document.getElementById('color2').value,
+        3: document.getElementById('color3').value,
+        leaf: document.getElementById('colorLeaf').value
       }
-    };
+    }
+  };
+  try {
+    await DiagramGenerator.render(data, container, options);
+  } catch (error) {
+    console.error('Error rendering diagram:', error);
+    container.innerHTML = `<p style='color:red'>Error: ${error.message}</p>`;
+  }
+}
 
-    // Render the diagram when the page loads
-    window.onload = function() {
-      const container = document.getElementById('diagram-container');
-      
-      // Call the render function from the DiagramGenerator global
-      DiagramGenerator.render(data, container, options)
-        .catch(error => {
-          console.error('Error rendering diagram:', error);
-          container.innerHTML = `<p style="color: red">Error: ${error.message}</p>`;
-        });
-    };
-  </script>
+const inputs = document.querySelectorAll('#sidebar input, #sidebar select');
+inputs.forEach(input => {
+  input.addEventListener('input', () => {
+    const valSpan = document.getElementById(input.id + 'Val');
+    if(valSpan) valSpan.textContent = input.value;
+    renderDiagram();
+  });
+});
+
+window.onload = renderDiagram;
+</script>
 </body>
 </html>
