@@ -132,7 +132,9 @@ async function run() {
         borderRadius: (argv as any)['border-radius'] as number,
         backgroundColor: (argv as any)['background-color'] as string,
         colorPalette,
-        leafNodeWidth: (argv as any)['leaf-node-width'] as number
+        leafNodeWidth: (argv as any)['leaf-node-width'] !== undefined ? 
+          (argv as any)['leaf-node-width'] as number : 
+          DEFAULT_DIAGRAM_OPTIONS.style.leafNodeWidth
       },
       format: argv.format as OutputFormat,
       outputPath: argv.output as string

@@ -51,7 +51,8 @@ export class GridLayoutEngine extends LayoutEngine {
    * @returns The calculated layout
    */
   private calculateNodeLayout(node: TreeNode, x: number, y: number): NodeLayout {
-    const { fontSize = 14, fontFamily = 'Arial, sans-serif' } = {};
+    const fontSize = this.styleOptions?.fontSize ?? 14;
+    const fontFamily = this.styleOptions?.fontFamily ?? 'Arial, sans-serif';
     const titleMetrics = textMeasurer.measureText(node.data.name, fontSize, fontFamily);
     const titleHeight = titleMetrics.height + this.options.padding * 2;
 
