@@ -53,6 +53,16 @@ const argv = yargs(hideBin(process.argv))
       type: 'number',
       default: DEFAULT_DIAGRAM_OPTIONS.layout.spacing
     },
+    'min-node-width': {
+      describe: 'Minimum width for nodes',
+      type: 'number',
+      default: DEFAULT_DIAGRAM_OPTIONS.layout.minNodeWidth
+    },
+    'min-node-height': {
+      describe: 'Minimum height for nodes',
+      type: 'number',
+      default: DEFAULT_DIAGRAM_OPTIONS.layout.minNodeHeight
+    },
     'font-family': {
       describe: 'Font family for node text',
       type: 'string',
@@ -143,7 +153,9 @@ async function run() {
         columns: argv.columns as number,
         padding: argv.padding as number,
         spacing: argv.spacing as number,
-        targetAspectRatio: (argv as any)['target-aspect-ratio'] as number
+        targetAspectRatio: (argv as any)['target-aspect-ratio'] as number,
+        minNodeWidth: (argv as any)['min-node-width'] as number,
+        minNodeHeight: (argv as any)['min-node-height'] as number
       },
       style: {
         fontFamily: (argv as any)['font-family'] as string,

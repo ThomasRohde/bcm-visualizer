@@ -72,6 +72,14 @@ body {
     <input type="range" id="spacing" min="0" max="50" value="8" />
   </div>
   <div class="control">
+    <label>Min Node Width <span id="minNodeWidthVal">100</span></label>
+    <input type="range" id="minNodeWidth" min="50" max="300" value="100" />
+  </div>
+  <div class="control">
+    <label>Min Node Height <span id="minNodeHeightVal">60</span></label>
+    <input type="range" id="minNodeHeight" min="30" max="200" value="60" />
+  </div>
+  <div class="control">
     <label>Font Size <span id="fontSizeVal">14</span></label>
     <input type="range" id="fontSize" min="8" max="36" value="14" />
   </div>
@@ -156,7 +164,9 @@ async function renderDiagram() {
   const layoutOptions = {
     padding: parseInt(document.getElementById('padding').value, 10),
     spacing: parseInt(document.getElementById('spacing').value, 10),
-    layoutType: layoutType // Add explicit layoutType property
+    layoutType: layoutType, // Add explicit layoutType property
+    minNodeWidth: parseInt(document.getElementById('minNodeWidth').value, 10),
+    minNodeHeight: parseInt(document.getElementById('minNodeHeight').value, 10)
   };
   
   // Set additional layout options based on selected type

@@ -131,6 +131,8 @@ Options:
                                      [choices: "grid", "aspectRatio"] [default: "grid"]
   --target-aspect-ratio  Target aspect ratio for aspectRatio layout (width/height)
                                                            [number] [default: 1.78]
+  --min-node-width    Minimum width for nodes                [number] [default: 100]
+  --min-node-height   Minimum height for nodes               [number] [default: 60]
   --help              Show help                                            [boolean]
 ```
 

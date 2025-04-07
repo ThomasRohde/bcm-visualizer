@@ -8,7 +8,7 @@ export const DEFAULT_LAYOUT_OPTIONS: Required<LayoutOptions> = {
   padding: 10,
   spacing: 5,
   minNodeWidth: 100,
-  minNodeHeight: 40,
+  minNodeHeight: 60,
   targetAspectRatio: 16 / 9,
   layoutType: 'aspectRatioGrid'
 };
