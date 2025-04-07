@@ -35,7 +35,7 @@
     "png",
     "pdf"
   ],
-  "author": "",
+  "author": "Thomas Klok Rohde",
   "license": "MIT",
   "dependencies": {
     "@resvg/resvg-js": "^2.4.1",
