@@ -177,7 +177,7 @@ Options:
 | `padding` | number | 10 | Internal padding within boxes (px) |
 | `spacing` | number | 5 | Spacing between sibling boxes (px) |
 | `minNodeWidth` | number | 100 | Minimum width for a node (px) |
-| `minNodeHeight` | number | 40 | Minimum height for a node (px) |
+| `minNodeHeight` | number | 60 | Minimum height for a node (px) |
 
 ### Style Options
 
