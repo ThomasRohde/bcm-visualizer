@@ -26,6 +26,9 @@ export interface StyleOptions {
   /** Mapping of top-level node IDs to background colors */
   colorPalette?: Record<string, string>;
   
+  /** Whether to color nodes based on their level in the hierarchy instead of root ancestor */
+  colorByLevel?: boolean;
+  
   /** Internal padding within boxes */
   padding?: number;
 }

@@ -23,6 +23,7 @@ export const DEFAULT_STYLE_OPTIONS: Required<StyleOptions> = {
   borderRadius: 5,
   backgroundColor: '#f0f0f0',
   colorPalette: {},
+  colorByLevel: false,
   padding: 10
 };
 

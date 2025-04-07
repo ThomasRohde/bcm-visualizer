@@ -2,6 +2,7 @@
   "name": "hierarchical-diagram-generator",
   "version": "1.0.0",
   "description": "Generate hierarchical diagrams from JSON data",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {

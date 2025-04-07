@@ -64,11 +64,14 @@ async function generateBcmStyleDiagram() {
         borderRadius: 5,
         borderWidth: 1,
         borderColor: '#888888',
-        // Color palette for main sections
+        // Color palette based on levels
+        colorByLevel: true, // Enable level-based coloring
         colorPalette: {
-          'customer': '#d0e8f2',  // Light blue for customer
-          'products': '#e6f5d0',  // Light green for products
-          'operations': '#f9e2d2' // Light orange for operations
+          0: '#f0f0f0',      // Root level
+          1: '#d0e8f2',      // First level
+          2: '#e6f5d0',      // Second level
+          3: '#f9e2d2',      // Third level
+          'leaf': '#ffe6e6'  // Special color for leaf nodes
         }
       },
       format: 'svg'

@@ -26,6 +26,9 @@
   <h1>Hierarchical Diagram Generator Example</h1>
   <div id="diagram-container"></div>
 
+  <!-- Include the SVG.js library -->
+  <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.1.2/dist/svg.min.js"></script>
+  
   <!-- Include the UMD bundle (replace with actual path) -->
   <script src="../dist/diagram-generator.umd.js"></script>
   <script>
@@ -64,11 +67,17 @@
       style: {
         fontFamily: 'Helvetica, Arial, sans-serif',
         fontSize: 14,
-        backgroundColor: '#f5f5f5',
-        borderRadius: 8,
-        // Custom color palette for top-level nodes
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: '#888888',
+        // Color palette based on levels
+        colorByLevel: true, // Enable level-based coloring
         colorPalette: {
-          'channels': '#e3f2fd'
+          0: '#f0f0f0',      // Root level
+          1: '#d0e8f2',      // First level
+          2: '#e6f5d0',      // Second level
+          3: '#f9e2d2',      // Third level
+          'leaf': '#ffe6e6'  // Special color for leaf nodes
         }
       }
     };
@@ -77,8 +86,8 @@
     window.onload = function() {
       const container = document.getElementById('diagram-container');
       
-      // The UMD bundle exposes DiagramGenerator globally
-      DiagramGenerator.render(data, container, options)
+      // With named exports, we need to access the default export first
+      DiagramGenerator.default.render(data, container, options)
         .catch(error => {
           console.error('Error rendering diagram:', error);
           container.innerHTML = `<p style="color: red">Error: ${error.message}</p>`;

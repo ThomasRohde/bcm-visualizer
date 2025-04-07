@@ -19,6 +19,7 @@ export class SvgRenderer {
     borderRadius: 5,
     backgroundColor: '#f0f0f0',
     colorPalette: {},
+    colorByLevel: false,
     padding: 10
   };
   
@@ -75,20 +76,36 @@ export class SvgRenderer {
    */
   private async initializeSvg(): Promise<void> {
     if (typeof window !== 'undefined' && window.document) {
-      // Browser environment
-      this.svg = await import('@svgdotjs/svg.js');
+      // Browser environment - check if SVG.js is already available globally
+      if (typeof (window as any).SVG !== 'undefined') {
+        // Use the globally loaded SVG.js
+        this.svg = { SVG: (window as any).SVG };
+      } else {
+        // Fallback to dynamic import
+        try {
+          this.svg = await import('@svgdotjs/svg.js');
+        } catch (err) {
+          console.error('Error loading SVG.js:', err);
+          throw new Error('Failed to load SVG.js. Make sure it is included in your HTML or properly bundled.');
+        }
+      }
     } else {
       // Node.js environment
-      const { SVG, registerWindow } = await import('@svgdotjs/svg.js');
-      const { createSVGWindow } = await import('svgdom');
-      
-      this.window = createSVGWindow();
-      const document = this.window.document;
-      
-      // Register window and document with SVG.js
-      registerWindow(this.window, document);
-      
-      this.svg = { SVG };
+      try {
+        const { SVG, registerWindow } = await import('@svgdotjs/svg.js');
+        const { createSVGWindow } = await import('svgdom');
+        
+        this.window = createSVGWindow();
+        const document = this.window.document;
+        
+        // Register window and document with SVG.js
+        registerWindow(this.window, document);
+        
+        this.svg = { SVG };
+      } catch (err) {
+        console.error('Error loading SVG.js or svgdom:', err);
+        throw new Error('Failed to load required libraries for Node.js rendering.');
+      }
     }
   }
   
@@ -125,30 +142,47 @@ export class SvgRenderer {
     // Determine if this is a leaf node (no children)
     const isLeaf = node.children.length === 0;
     
-    // Determine background color based on node level or if it's a leaf
+    // Determine background color based on styling options
     let bgColor = this.style.backgroundColor;
     
-    if (isLeaf) {
-      // For leaf nodes, use the last color in the palette as a special leaf color
-      if (this.levelColors.length > 0) {
-        // Use the last color in the palette for leaf nodes
-        // If we haven't cached the leaf color yet, do so
-        if (this.leafColor === null) {
-          this.leafColor = this.levelColors[this.levelColors.length - 1];
+    // Use colorByLevel property to determine coloring strategy
+    if (this.style.colorByLevel) {
+      // Color based on hierarchy level
+      if (this.style.colorPalette) {
+        if (isLeaf && this.style.colorPalette['leaf']) {
+          // Special color for leaf nodes if specified
+          bgColor = this.style.colorPalette['leaf'];
+        } else if (this.style.colorPalette[level.toString()]) {
+          // Color based on exact level match
+          bgColor = this.style.colorPalette[level.toString()];
         }
-        bgColor = this.leafColor;
       }
-    } else if (this.levelColors.length > 0) {
-      // For non-leaf nodes, use color based on level
-      // Exclude the last color (reserved for leaves)
-      const nonLeafColors = this.levelColors.length > 1 ? 
-                            this.levelColors.slice(0, -1) : 
-                            this.levelColors;
-      
-      if (nonLeafColors.length > 0) {
-        // Use the level to determine the color
-        const colorIndex = level % nonLeafColors.length;
-        bgColor = nonLeafColors[colorIndex];
+    } else {
+      // Original coloring logic based on root ancestor
+      if (node.rootAncestor && this.style.colorPalette[node.rootAncestor]) {
+        bgColor = this.style.colorPalette[node.rootAncestor];
+      } else if (isLeaf) {
+        // For leaf nodes, use the last color in the palette as a special leaf color
+        if (this.levelColors.length > 0) {
+          // Use the last color in the palette for leaf nodes
+          // If we haven't cached the leaf color yet, do so
+          if (this.leafColor === null) {
+            this.leafColor = this.levelColors[this.levelColors.length - 1];
+          }
+          bgColor = this.leafColor;
+        }
+      } else if (this.levelColors.length > 0) {
+        // For non-leaf nodes, use color based on level
+        // Exclude the last color (reserved for leaves)
+        const nonLeafColors = this.levelColors.length > 1 ? 
+                              this.levelColors.slice(0, -1) : 
+                              this.levelColors;
+        
+        if (nonLeafColors.length > 0) {
+          // Use the level to determine the color
+          const colorIndex = level % nonLeafColors.length;
+          bgColor = nonLeafColors[colorIndex];
+        }
       }
     }
     
