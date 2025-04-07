@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Metis - Hierarchical Diagram Generator
 import fs from 'fs/promises';
 import path from 'path';
 import yargs from 'yargs';

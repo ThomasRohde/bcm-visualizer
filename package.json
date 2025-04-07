@@ -1,5 +1,5 @@
 {
-  "name": "hierarchical-diagram-generator",
+  "name": "metis",
   "version": "1.0.2",
   "description": "Generate hierarchical diagrams from JSON data",
   "type": "module",
@@ -7,7 +7,7 @@
   "types": "dist/node/index.d.ts",
   "browser": "dist/browser/diagram-generator.esm.js",
   "bin": {
-    "hierarchical-diagram-generator": "dist/node/node/main.js"
+    "metis": "dist/node/node/main.js"
   },
   "exports": {
     ".": {

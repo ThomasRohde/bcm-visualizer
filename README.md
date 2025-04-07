@@ -1,4 +1,4 @@
-# Hierarchical Diagram Generator
+# Metis
 
 A flexible tool to automatically create visual diagrams representing hierarchical data structures. The generator takes structured JSON data as input and produces diagrams styled with nested, colored, rectangular boxes. This is perfect for visualizing:
 
@@ -25,10 +25,10 @@ A flexible tool to automatically create visual diagrams representing hierarchica
 
 ```bash
 # As a library
-npm install hierarchical-diagram-generator
+npm install metis
 
 # As a global CLI tool
-npm install -g hierarchical-diagram-generator
+npm install -g metis
 ```
 
 ## Input Format
@@ -56,7 +56,7 @@ See more examples in the `docs-input-format.md` file.
 ### As a Node.js Library
 
 ```javascript
-import { generateDiagram } from 'hierarchical-diagram-generator';
+import { generateDiagram } from 'metis';
 
 const data = [
   { id: 'root', name: 'Root Node', parent: null },
@@ -93,7 +93,7 @@ fs.writeFileSync('diagram.svg', svg);
 ### As a CLI Tool
 
 ```bash
-hierarchical-diagram-generator -i input.json -o diagram.svg --format svg --columns 3 --color-palette '{"0":"#f0f0f0","1":"#d0e8f2","2":"#e6f5d0","leaf":"#ffe6e6"}' --color-by-level
+metis -i input.json -o diagram.svg --format svg --columns 3 --color-palette '{"0":"#f0f0f0","1":"#d0e8f2","2":"#e6f5d0","leaf":"#ffe6e6"}' --color-by-level
 ```
 
 #### Using Color Palette
@@ -101,7 +101,7 @@ hierarchical-diagram-generator -i input.json -o diagram.svg --format svg --colum
 To use a color palette:
 
 ```bash
-hierarchical-diagram-generator -i input.json -o diagram.png --format png --leaf-node-width 200 --png-label-offset 5 --columns 3 --color-by-level --color-palette '{"0":"#f8f8f8","1":"#d0e8f2","2":"#e6f5d0","3":"#f9e2d2","leaf":"#ffe6e6"}' --border-color "#888888"
+metis -i input.json -o diagram.png --format png --leaf-node-width 200 --png-label-offset 5 --columns 3 --color-by-level --color-palette '{"0":"#f8f8f8","1":"#d0e8f2","2":"#e6f5d0","3":"#f9e2d2","leaf":"#ffe6e6"}' --border-color "#888888"
 ```
 
 Available options:
@@ -256,7 +256,7 @@ See the `examples` directory for sample code and usage patterns:
 ### Project Structure
 
 ```
-hierarchical-diagram-generator/
+metis/
 ├── src/                      # TypeScript source code
 │   ├── types/                # Shared TypeScript interfaces
 │   ├── core/                 # Core logic: hierarchy building, orchestration

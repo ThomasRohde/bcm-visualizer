@@ -1,3 +1,4 @@
+// Metis - Hierarchical Diagram Generator for the browser
 import { HierarchyNode, DiagramOptions } from '../types/index.js';
 import { validateHierarchyInput, buildHierarchy } from '../core/hierarchy.js';
 import { createLayoutEngine } from '../layout/index.js';
@@ -75,7 +76,7 @@ export class BrowserDiagramRenderer {
   }
 }
 
-// Main export - will be available as DiagramGenerator global in UMD
+// Main export - will be available as Metis global in UMD
 export default {
   render
 };

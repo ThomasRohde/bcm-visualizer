@@ -1,3 +1,4 @@
+// Metis - Hierarchical Diagram Generator
 // Re-export core functionality
 export * from './types/index.js';
 export * from './core/index.js';

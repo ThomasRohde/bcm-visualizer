@@ -129,6 +129,10 @@ body {
   <div class="control">
     <label><input type="checkbox" id="fixedLeafWidthToggle" checked /> Fixed Leaf Width</label>
   </div>
+  <div class="control">
+    <label>Load Model from Disk</label>
+    <input type="file" id="loadModel" accept=".json" />
+  </div>
 </div>
 <div id="diagram-container"></div>
 <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.1.2/dist/svg.min.js"></script>
@@ -211,6 +215,43 @@ async function renderDiagram() {
     container.innerHTML = `<p style='color:red'>Error: ${error.message}</p>`;
   }
 }
+
+document.getElementById('loadModel').addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const jsonData = JSON.parse(e.target.result);
+      // Check if the data is directly an array or has a data property
+      const modelData = Array.isArray(jsonData) ? jsonData : (jsonData.data || jsonData);
+      
+      if (!Array.isArray(modelData)) {
+        throw new Error('Invalid JSON format: Expected an array or object with a data array');
+      }
+      
+      // Update the local data variable instead of window.data
+      data.length = 0;  // Clear existing data
+      modelData.forEach(item => data.push(item));  // Copy new data into existing array
+      
+      // Re-render the diagram with the new data
+      renderDiagram();
+      
+      console.log('Model loaded successfully', data);
+    } catch (error) {
+      console.error('Error loading model:', error);
+      alert('Error loading model: ' + error.message);
+    }
+  };
+  
+  reader.onerror = function() {
+    console.error('Error reading file');
+    alert('Error reading file');
+  };
+  
+  reader.readAsText(file);
+});
 
 const inputs = document.querySelectorAll('#sidebar input, #sidebar select');
 inputs.forEach(input => {
