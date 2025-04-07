@@ -1,9 +1,9 @@
-export * from './PngConverter';
-export * from './PdfConverter';
+export * from './PngConverter.js';
+export * from './PdfConverter.js';
 
-import { PngConverter } from './PngConverter';
-import { PdfConverter } from './PdfConverter';
-import { OutputFormat } from '../types';
+import { PngConverter } from './PngConverter.js';
+import { PdfConverter } from './PdfConverter.js';
+import { OutputFormat } from '../types/index.js';
 
 /**
  * Convert SVG to the requested output format

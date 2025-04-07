@@ -1,5 +1,5 @@
-import { TreeNode, StyleOptions } from '../types';
-import { getDefaultMutedColorPalette } from '../utils/styleUtils';
+import { TreeNode, StyleOptions } from '../types/index.js';
+import { getDefaultMutedColorPalette } from '../utils/styleUtils.js';
 
 /**
  * Renderer that outputs SVG format

@@ -1,6 +1,6 @@
-export * from './input';
-export * from './layout';
-export * from './style';
+export * from './input.js';
+export * from './layout.js';
+export * from './style.js';
 
 /**
  * Output format options
@@ -12,10 +12,10 @@ export type OutputFormat = 'svg' | 'png' | 'pdf';
  */
 export interface DiagramOptions {
   /** Layout configuration */
-  layout?: import('./layout').LayoutOptions;
+  layout?: import('./layout.js').LayoutOptions;
   
   /** Style configuration */
-  style?: import('./style').StyleOptions;
+  style?: import('./style.js').StyleOptions;
   
   /** Output format */
   format?: OutputFormat;

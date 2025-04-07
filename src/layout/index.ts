@@ -1,9 +1,9 @@
-export * from './LayoutEngine';
-export * from './GridLayoutEngine';
+export * from './LayoutEngine.js';
+export * from './GridLayoutEngine.js';
 
-import { LayoutEngine } from './LayoutEngine';
-import { GridLayoutEngine } from './GridLayoutEngine';
-import { LayoutOptions } from '../types';
+import { LayoutEngine } from './LayoutEngine.js';
+import { GridLayoutEngine } from './GridLayoutEngine.js';
+import { LayoutOptions } from '../types/index.js';
 
 /**
  * Create a layout engine based on the provided options

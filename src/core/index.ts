@@ -1,2 +1,2 @@
-export * from './generator';
-export * from './hierarchy';
+export * from './generator.js';
+export * from './hierarchy.js';

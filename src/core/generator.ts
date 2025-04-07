@@ -1,9 +1,9 @@
-import { HierarchyNode, DiagramOptions, OutputFormat } from '../types';
-import { validateHierarchyInput, buildHierarchy } from './hierarchy';
-import { createLayoutEngine } from '../layout';
-import { SvgRenderer } from '../rendering';
-import { convertOutput } from '../output';
-import { DEFAULT_DIAGRAM_OPTIONS } from '../config';
+import { HierarchyNode, DiagramOptions, OutputFormat } from '../types/index.js';
+import { validateHierarchyInput, buildHierarchy } from './hierarchy.js';
+import { createLayoutEngine } from '../layout/index.js';
+import { SvgRenderer } from '../rendering/index.js';
+import { convertOutput } from '../output/index.js';
+import { DEFAULT_DIAGRAM_OPTIONS } from '../config/index.js';
 
 /**
  * Generate a diagram from the input hierarchy data

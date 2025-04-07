@@ -1,4 +1,4 @@
-import { StyleOptions } from '../types';
+import { StyleOptions } from '../types/index.js';
 
 /**
  * Generates a contrasting text color (black or white) for a given background color

@@ -1,1 +1,1 @@
-export * from './SvgRenderer';
+export * from './SvgRenderer.js';

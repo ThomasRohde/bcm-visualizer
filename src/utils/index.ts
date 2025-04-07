@@ -1,2 +1,2 @@
-export * from './textMeasure';
-export * from './styleUtils';
+export * from './textMeasure.js';
+export * from './styleUtils.js';

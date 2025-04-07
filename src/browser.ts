@@ -1,8 +1,8 @@
-import { HierarchyNode, DiagramOptions } from './types';
-import { validateHierarchyInput, buildHierarchy } from './core/hierarchy';
-import { createLayoutEngine } from './layout';
-import { SvgRenderer } from './rendering';
-import { DEFAULT_DIAGRAM_OPTIONS } from './config';
+import { HierarchyNode, DiagramOptions } from './types/index.js';
+import { validateHierarchyInput, buildHierarchy } from './core/hierarchy.js';
+import { createLayoutEngine } from './layout/index.js';
+import { SvgRenderer } from './rendering/index.js';
+import { DEFAULT_DIAGRAM_OPTIONS } from './config/index.js';
 
 /**
  * Browser-specific renderer for hierarchical diagrams

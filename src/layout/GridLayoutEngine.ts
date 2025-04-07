@@ -1,6 +1,6 @@
-import { LayoutEngine } from './LayoutEngine';
-import { TreeNode, NodeLayout } from '../types';
-import textMeasurer from '../utils/textMeasure';
+import { LayoutEngine } from './LayoutEngine.js';
+import { TreeNode, NodeLayout } from '../types/index.js';
+import textMeasurer from '../utils/textMeasure.js';
 
 /**
  * Layout engine that arranges children in a grid/flow layout
