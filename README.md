@@ -96,9 +96,9 @@ fs.writeFileSync('diagram.svg', svg);
 hierarchical-diagram-generator -i input.json -o diagram.svg --format svg --columns 3 --color-palette '{"0":"#f0f0f0","1":"#d0e8f2","2":"#e6f5d0","leaf":"#ffe6e6"}' --color-by-level
 ```
 
-#### Using Browser-Example Color Palette
+#### Using Color Palette
 
-To use the same color palette as in the browser-example.html:
+To use a color palette:
 
 ```bash
 hierarchical-diagram-generator -i input.json -o diagram.png --format png --leaf-node-width 200 --png-label-offset 5 --columns 3 --color-by-level --color-palette '{"0":"#f8f8f8","1":"#d0e8f2","2":"#e6f5d0","3":"#f9e2d2","leaf":"#ffe6e6"}' --border-color "#888888"
