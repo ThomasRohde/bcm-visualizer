@@ -62,4 +62,7 @@ export interface LayoutOptions {
   
   /** Minimum height for a node */
   minNodeHeight?: number;
+  
+  /** Target aspect ratio (width/height) for the layout */
+  targetAspectRatio?: number;
 }

@@ -34,3 +34,5 @@ Thumbs.db
 
 # Test coverage reports
 coverage/
+layout.xml
+.repomix/bundles.json

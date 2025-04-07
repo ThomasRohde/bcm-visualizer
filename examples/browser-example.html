@@ -49,8 +49,19 @@ body {
 <div id="sidebar">
   <h2>Options</h2>
   <div class="control">
+    <label>Layout Type</label>
+    <select id="layoutType">
+      <option value="grid">Standard Grid</option>
+      <option value="aspectRatio">Aspect Ratio Optimized</option>
+    </select>
+  </div>
+  <div class="control" id="columnsControl">
     <label>Columns <span id="columnsVal">2</span></label>
     <input type="range" id="columns" min="1" max="10" value="2" />
+  </div>
+  <div class="control" id="aspectRatioControl" style="display: none;">
+    <label>Target Aspect Ratio <span id="aspectRatioVal">1.78</span></label>
+    <input type="range" id="aspectRatio" min="0.5" max="3" step="0.1" value="1.78" />
   </div>
   <div class="control">
     <label>Padding <span id="paddingVal">12</span></label>
@@ -140,13 +151,28 @@ async function renderDiagram() {
   container.innerHTML = '';
   const fixedLeafWidthEnabled = document.getElementById('fixedLeafWidthToggle').checked;
   const leafNodeWidthValue = parseInt(document.getElementById('leafNodeWidth').value, 10);
+  const layoutType = document.getElementById('layoutType').value;
+
+  const layoutOptions = {
+    padding: parseInt(document.getElementById('padding').value, 10),
+    spacing: parseInt(document.getElementById('spacing').value, 10)
+  };
+  
+  // Set layout options based on selected type
+  if (layoutType === 'grid') {
+    const columnsValue = parseInt(document.getElementById('columns').value, 10);
+    layoutOptions.columns = columnsValue;
+    console.log(`Using Grid Layout with ${columnsValue} columns`, layoutOptions);
+    // Force targetAspectRatio to be undefined to ensure GridLayoutEngine is used
+    layoutOptions.targetAspectRatio = undefined;
+  } else if (layoutType === 'aspectRatio') {
+    const aspectRatioValue = parseFloat(document.getElementById('aspectRatio').value);
+    layoutOptions.targetAspectRatio = aspectRatioValue;
+    console.log(`Using Aspect Ratio Layout with target ratio ${aspectRatioValue}`, layoutOptions);
+  }
 
   const options = {
-    layout: {
-      columns: parseInt(document.getElementById('columns').value, 10),
-      padding: parseInt(document.getElementById('padding').value, 10),
-      spacing: parseInt(document.getElementById('spacing').value, 10)
-    },
+    layout: layoutOptions,
     style: {
       fontFamily: 'Helvetica, Arial, sans-serif',
       fontSize: parseInt(document.getElementById('fontSize').value, 10),
@@ -164,6 +190,9 @@ async function renderDiagram() {
       leafNodeWidth: fixedLeafWidthEnabled ? leafNodeWidthValue : undefined
     }
   };
+  
+  console.log('Rendering with options:', options);
+  
   try {
     await DiagramGenerator.render(data, container, options);
   } catch (error) {
@@ -179,6 +208,13 @@ inputs.forEach(input => {
     if(valSpan) valSpan.textContent = input.value;
     renderDiagram();
   });
+});
+
+document.getElementById('layoutType').addEventListener('change', () => {
+  const layoutType = document.getElementById('layoutType').value;
+  document.getElementById('columnsControl').style.display = layoutType === 'grid' ? 'block' : 'none';
+  document.getElementById('aspectRatioControl').style.display = layoutType === 'aspectRatio' ? 'block' : 'none';
+  renderDiagram();
 });
 
 window.onload = renderDiagram;

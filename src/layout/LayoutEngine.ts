@@ -12,7 +12,8 @@ export abstract class LayoutEngine {
     padding: 10,
     spacing: 5,
     minNodeWidth: 100,
-    minNodeHeight: 40
+    minNodeHeight: 40,
+    targetAspectRatio: 16 / 9
   };
   
   /**
