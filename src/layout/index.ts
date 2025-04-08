@@ -2,11 +2,13 @@ export * from './LayoutEngine.js';
 export * from './GridLayoutEngine.js';
 export * from './AspectRatioGridLayoutEngine.js';
 export * from './PermutationGridLayoutEngine.js';
+export * from './TreemapLayoutEngine.js';
 
 import { LayoutEngine } from './LayoutEngine.js';
 import { GridLayoutEngine } from './GridLayoutEngine.js';
 import { AspectRatioGridLayoutEngine } from './AspectRatioGridLayoutEngine.js';
 import { PermutationGridLayoutEngine } from './PermutationGridLayoutEngine.js';
+import { TreemapLayoutEngine } from './TreemapLayoutEngine.js';
 import { LayoutOptions, StyleOptions } from '../types/index.js';
 
 /**
@@ -32,6 +34,8 @@ export function createLayoutEngine(
       case 'permutation':
       case 'permutation-grid':
         return new PermutationGridLayoutEngine(layoutOptions, styleOptions);
+      case 'treemap':
+        return new TreemapLayoutEngine(layoutOptions, styleOptions);
       default:
         console.warn(`Unknown layout type: ${layoutOptions.layoutType}, falling back to grid layout`);
         return new GridLayoutEngine(layoutOptions, styleOptions);

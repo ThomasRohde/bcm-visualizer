@@ -1,5 +1,5 @@
 {
-  "name": "metis",
+  "name": "metis-viz",
   "version": "1.0.3",
   "description": "Generate hierarchical diagrams from JSON data",
   "type": "module",
