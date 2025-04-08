@@ -1,6 +1,6 @@
 {
   "name": "metis-viz",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Generate hierarchical diagrams from JSON data",
   "type": "module",
   "main": "dist/node/index.js",
