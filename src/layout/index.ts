@@ -3,12 +3,14 @@ export * from './GridLayoutEngine.js';
 export * from './AspectRatioGridLayoutEngine.js';
 export * from './PermutationGridLayoutEngine.js';
 export * from './TreemapLayoutEngine.js';
+export * from './FlowGridAspectLayout.js';
 
 import { LayoutEngine } from './LayoutEngine.js';
 import { GridLayoutEngine } from './GridLayoutEngine.js';
 import { AspectRatioGridLayoutEngine } from './AspectRatioGridLayoutEngine.js';
 import { PermutationGridLayoutEngine } from './PermutationGridLayoutEngine.js';
 import { TreemapLayoutEngine } from './TreemapLayoutEngine.js';
+import { FlowGridAspectLayout } from './FlowGridAspectLayout.js';
 import { LayoutOptions, StyleOptions } from '../types/index.js';
 
 /**
@@ -30,6 +32,10 @@ export function createLayoutEngine(
       case 'aspectratio':
       case 'aspect-ratio':
         return new AspectRatioGridLayoutEngine(layoutOptions, styleOptions);
+      case 'flowgrid':
+      case 'flow-grid':
+      case 'flow-aspect':
+        return new FlowGridAspectLayout(layoutOptions, styleOptions);
       case 'optimized':
       case 'permutation':
       case 'permutation-grid':
