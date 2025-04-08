@@ -391,6 +391,7 @@ export class TreemapLayoutEngine extends LayoutEngine {
    */
   private layoutNodeRecursive(node: TreemapNode, x: number, y: number, width: number, height: number): void {
     const padding = this.options.padding;
+    const spacing = this.options.spacing;
 
     // Set node layout to full area
     node.layout = { x, y, width, height };
@@ -407,8 +408,15 @@ export class TreemapLayoutEngine extends LayoutEngine {
 
     this.squarify(node.children as TreemapNode[], innerX, innerY, innerWidth, innerHeight);
 
-    // Recursively layout children inside their rectangles
+    // Apply spacing by shrinking each child rectangle
     for (const child of node.children as TreemapNode[]) {
+      if (!child.layout) continue;
+      child.layout.x += spacing;
+      child.layout.y += spacing;
+      child.layout.width = Math.max(0, child.layout.width - 2 * spacing);
+      child.layout.height = Math.max(0, child.layout.height - 2 * spacing);
+
+      // Recursively layout children inside their rectangles
       this.layoutNodeRecursive(child, child.layout.x, child.layout.y, child.layout.width, child.layout.height);
     }
   }
