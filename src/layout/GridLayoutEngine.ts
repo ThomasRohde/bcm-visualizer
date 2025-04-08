@@ -23,14 +23,78 @@ export class GridLayoutEngine extends LayoutEngine {
    * @returns The same nodes with layout information added
    */
   calculateLayout(rootNodes: TreeNode[]): TreeNode[] {
-    // Start with initial X position
-    let startX = 0;
+    if (rootNodes.length === 0) {
+      return [];
+    }
+
+    // Pre-calculate node sizes to determine total space requirements
+    let totalWidth = 0;
+    let totalHeight = 0;
+    let maxNodeWidth = 0;
+    let maxNodeHeight = 0;
+    let totalNodes = 0;
+
+    // First pass: calculate sizes without positioning
+    const preCalculatedNodes = rootNodes.map(root => {
+      // Calculate layout at a dummy position (0,0)
+      this.calculateNodeLayout(root, 0, 0);
+      
+      if (root.layout) {
+        totalWidth += root.layout.width;
+        totalHeight = Math.max(totalHeight, root.layout.height);
+        maxNodeWidth = Math.max(maxNodeWidth, root.layout.width);
+        maxNodeHeight = Math.max(maxNodeHeight, root.layout.height);
+        
+        // Count total nodes including descendants
+        const countNodes = (node: TreeNode): number => {
+          return 1 + node.children.reduce((sum, child) => sum + countNodes(child), 0);
+        };
+        
+        totalNodes += countNodes(root);
+      }
+      
+      return root;
+    });
+    
+    // Add spacing between root nodes
+    if (rootNodes.length > 1) {
+      totalWidth += (rootNodes.length - 1) * this.options.spacing;
+    }
+    
+    // Determine appropriate initial bounds and scaling
+    // For very large models with many nodes, provide more space
+    const baseSize = 1000;
+    const nodeCountFactor = Math.sqrt(totalNodes / 50) * 0.5; // Scale based on node count
+    const sizeFactor = Math.max(
+      1, 
+      Math.sqrt((totalWidth * totalHeight) / (baseSize * baseSize)) * 0.8,
+      nodeCountFactor
+    );
+    
+    // Calculate dimensions that maintain aspect ratio of content
+    const contentAspectRatio = totalWidth / Math.max(totalHeight, 1);
+    
+    // Adjust for extreme aspect ratios
+    let horizontalAdjustment = 1.0;
+    let verticalAdjustment = 1.0;
+    
+    if (contentAspectRatio > 2.5) {
+      // Very wide content - increase width scaling
+      horizontalAdjustment = 1.2;
+    } else if (contentAspectRatio < 0.4) {
+      // Very tall content - increase height scaling
+      verticalAdjustment = 1.2;
+    }
+    
+    // Start with initial X position using adaptive scaling
+    let startX = this.options.padding;
+    let startY = this.options.padding;
     let maxHeight = 0;
     
-    // Process each root node
-    for (const root of rootNodes) {
-      // Calculate layout for this root and its descendants
-      this.calculateNodeLayout(root, startX, 0);
+    // Second pass: Position each root node with the adaptive bounds
+    for (const root of preCalculatedNodes) {
+      // Apply the layout with our adaptive dimensions
+      this.calculateNodeLayout(root, startX, startY);
       
       // Update starting position for next root node
       if (root.layout) {
@@ -39,7 +103,7 @@ export class GridLayoutEngine extends LayoutEngine {
       }
     }
     
-    return rootNodes;
+    return preCalculatedNodes;
   }
   
   /**
@@ -179,22 +243,58 @@ export class GridLayoutEngine extends LayoutEngine {
       return { width: 0, height: 0 };
     }
     
-    let maxWidth = 0;
-    let maxHeight = 0;
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
     
-    rootNodes.forEach(node => {
-      if (node.layout) {
-        const right = node.layout.x + node.layout.width;
-        const bottom = node.layout.y + node.layout.height;
+    // Find the full bounds of all nodes and their children
+    const findBounds = (node: TreeNode) => {
+      if (!node.layout) return;
+      
+      const { x, y, width, height } = node.layout;
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x + width);
+      maxY = Math.max(maxY, y + height);
+      
+      node.children.forEach(findBounds);
+    };
+    
+    rootNodes.forEach(findBounds);
+    
+    // Add padding around the entire diagram
+    const padding = this.options.padding;
+    const finalWidth = (maxX === -Infinity) ? 0 : maxX - minX + padding * 2;
+    const finalHeight = (maxY === -Infinity) ? 0 : maxY - minY + padding * 2;
+    
+    // Adjust final layout positions to start at padding offset
+    if (finalWidth > 0 || finalHeight > 0) {
+      const offsetX = padding - minX;
+      const offsetY = padding - minY;
+      
+      // A helper to offset node positions
+      const offsetNodeLayout = (node: TreeNode, dx: number, dy: number) => {
+        if (node.layout) {
+          node.layout.x += dx;
+          node.layout.y += dy;
+          
+          // Update content area as well if it exists
+          if (node.layout.contentArea) {
+            node.layout.contentArea.x += dx;
+            node.layout.contentArea.y += dy;
+          }
+        }
         
-        maxWidth = Math.max(maxWidth, right);
-        maxHeight = Math.max(maxHeight, bottom);
-      }
-    });
+        node.children.forEach(child => offsetNodeLayout(child, dx, dy));
+      };
+      
+      rootNodes.forEach(root => offsetNodeLayout(root, offsetX, offsetY));
+    }
     
     return {
-      width: maxWidth,
-      height: maxHeight
+      width: finalWidth,
+      height: finalHeight
     };
   }
 }
