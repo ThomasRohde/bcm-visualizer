@@ -170,14 +170,8 @@ export class FlowGridAspectLayout extends LayoutEngine {
     const requiredWidth = contentWidth + this.options.padding * 2;
     const finalWidth = Math.max(requiredWidth, titleAreaWidth, this.options.minNodeWidth);
 
-    // Calculate required height: title area height + content height + padding between title and content + bottom padding.
-    // Note: titleAreaHeight already includes top/bottom padding for the title text itself.
-    // We need space for: Title Area + Content Area + Padding below content
-    // Let's simplify: Height = Title Area Height + Content Height + Padding below title area
-    // The description implies parent size aggregates child grid size + padding.
-    // Let's use: Height = Title Height + Padding + Child Grid Height + Padding
-    // titleMetrics.height + padding + childrenTotalHeight + padding
-    const requiredHeight = titleMetrics.height + this.options.padding + contentHeight + this.options.padding;
+    // Calculate required height: title area height + content height + padding below title area + padding below children
+    const requiredHeight = titleMetrics.height + this.options.padding + contentHeight + this.options.padding * 2;
     const finalHeight = Math.max(requiredHeight, this.options.minNodeHeight);
 
 
