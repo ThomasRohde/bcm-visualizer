@@ -58,20 +58,70 @@ export class TreemapLayoutEngine extends LayoutEngine {  private styleOptions?: 
    *
    * @param rootNodes - Root nodes of the tree.
    * @returns Root nodes with layout information added.
-   */
-  calculateLayout(rootNodes: TreeNode[]): TreeNode[] {
+   */  calculateLayout(rootNodes: TreeNode[]): TreeNode[] {
     if (rootNodes.length === 0) {
       return [];
     }
 
+    // First calculate node values to determine space requirements
     const valuedNodes = rootNodes.map(root => this.calculateNodeValues(root));
-
-    const initialBounds = { x: 0, y: 0, width: 1000, height: 1000 };
-
+    
+    // Calculate adaptive initial bounds based on total content size
+    // instead of a fixed 1000x1000 area
+    let totalArea = 0;
+    let maxLeafWidth = 0;
+    let maxLeafHeight = 0;
+    
+    // Calculate the total area needed and find maximum leaf dimensions
+    const calculateAreaNeeded = (node: TreemapNode) => {
+      totalArea += node.value;
+      
+      if (node.children.length === 0 && node.layout) {
+        maxLeafWidth = Math.max(maxLeafWidth, node.layout.width);
+        maxLeafHeight = Math.max(maxLeafHeight, node.layout.height);
+      }
+      
+      node.children.forEach(child => calculateAreaNeeded(child as TreemapNode));
+    };
+    
+    valuedNodes.forEach(root => calculateAreaNeeded(root as TreemapNode));
+    
+    // Determine appropriate initial bounds based on content
+    // For very large models, scale up from the default size
+    const baseSize = 1500; // Larger base size than before
+    const scaleFactor = Math.max(1, Math.sqrt(totalArea / 10000) * 0.8); // Scale based on total area
+    
+    // Calculate dimensions that maintain a reasonable aspect ratio
+    let initialWidth = baseSize * scaleFactor;
+    let initialHeight = baseSize * scaleFactor;
+    
+    // Adjust aspect ratio based on leaf nodes (which often determine layout constraints)
+    if (maxLeafWidth > 0 && maxLeafHeight > 0) {
+      const leafAspectRatio = maxLeafWidth / maxLeafHeight;
+      // Adjust initial bounds to better match the expected content shape
+      if (leafAspectRatio > 1.5) {
+        // Wider content - increase width
+        initialWidth *= 1.2;
+      } else if (leafAspectRatio < 0.67) {
+        // Taller content - increase height
+        initialHeight *= 1.2;
+      }
+    }
+    
+    // Use these adaptive bounds for initial layout
+    const initialBounds = { 
+      x: 0, 
+      y: 0, 
+      width: Math.max(initialWidth, 1000),  // Ensure minimum size
+      height: Math.max(initialHeight, 1000) // Ensure minimum size
+    };
+    
+    // Apply the layout with our adaptive bounds
     valuedNodes.forEach(root => {
       this.layoutNodeRecursive(root as TreemapNode, initialBounds.x, initialBounds.y, initialBounds.width, initialBounds.height);
     });
 
+    // Position root nodes side by side
     let currentX = 0;
     for (const root of valuedNodes) {
       if (root.layout) {
@@ -229,11 +279,11 @@ export class TreemapLayoutEngine extends LayoutEngine {  private styleOptions?: 
 
 
     // Calculate final dimensions based on wrapped lines
-    const wrappedWidth = Math.max(maxLineWidth + padding * 2, this.options.minNodeWidth);
-    // Estimate height based on number of lines and font size/line height
-     // Use measured height of a single line as an approximation for line height
-    const wrappedHeight = Math.max(lines.length * singleLineHeight + padding * 2, this.options.minNodeHeight);
+    let wrappedWidth = maxLineWidth + padding * 2;
+    let wrappedHeight = lines.length * singleLineHeight + padding * 2;
 
+    wrappedWidth = Math.max(wrappedWidth, this.options.minNodeWidth);
+    wrappedHeight = Math.max(wrappedHeight, this.options.minNodeHeight);
 
     return { width: wrappedWidth, height: wrappedHeight };
   }
@@ -249,18 +299,20 @@ export class TreemapLayoutEngine extends LayoutEngine {  private styleOptions?: 
     * @param y Current rectangle top coordinate.
     * @param w Current rectangle width.
     * @param h Current rectangle height.
-    */
-   private squarify(nodes: TreemapNode[], x: number, y: number, w: number, h: number): void {
+    */   private squarify(nodes: TreemapNode[], x: number, y: number, w: number, h: number): void {
        if (nodes.length === 0) {
            return;
        }
 
-        // Sort nodes by value descending (important for the algorithm)
-       // The calculateNodeValues should ideally preserve order, but sorting ensures correctness.
-       // If calculateNodeValues guarantees original child order, sorting might be skipped
-       // IF the original data was already appropriately sorted. Assuming not sorted here.
-        nodes.sort((a, b) => b.value - a.value);
+        // Ensure we have valid dimensions to work with
+        if (w <= 0 || h <= 0) {
+            console.warn('Invalid dimensions for squarify layout', { x, y, w, h });
+            return;
+        }
 
+        // Sort nodes by value descending (important for the algorithm)
+        // The calculateNodeValues should ideally preserve order, but sorting ensures correctness.
+        nodes.sort((a, b) => b.value - a.value);
 
        let totalValue = nodes.reduce((sum, node) => sum + node.value, 0);
        let currentNodes: TreemapNode[] = [];
@@ -290,35 +342,89 @@ export class TreemapLayoutEngine extends LayoutEngine {  private styleOptions?: 
         const areaRatio = currentValue / totalValue;
 
         let currentX = x;
-        let currentY = y;
-
-        if (w >= h) { // Layout horizontally
+        let currentY = y;        if (w >= h) { // Layout horizontally
             const rowWidth = w;
             const rowHeight = h * areaRatio;
             let nodeX = x;
+            
+            // Add a tiny gap between nodes to prevent overlap - a fraction of a pixel is enough
+            const gapAdjustment = 0.1; 
+            
             for (const node of currentNodes) {
-                const nodeWidth = rowWidth * (node.value / currentValue);
-                node.layout = { x: nodeX, y: currentY, width: nodeWidth, height: rowHeight };
-                 this.squarify(node.children as TreemapNode[], nodeX, currentY, nodeWidth, rowHeight); // Recurse into children
+                // Calculate node width, ensuring it doesn't exceed available space
+                const calculatedWidth = rowWidth * (node.value / currentValue);
+                const nodeWidth = Math.min(calculatedWidth, (x + w) - nodeX);
+                
+                if (nodeWidth <= 0) continue; // Skip nodes that would have zero width
+                
+                // Apply the layout with a small gap adjustment to prevent exact edge touching
+                node.layout = { 
+                    x: nodeX, 
+                    y: currentY, 
+                    width: Math.max(0, nodeWidth - gapAdjustment), 
+                    height: Math.max(0, rowHeight - gapAdjustment) 
+                };
+                
+                // Only recurse if we have actual space
+                if (nodeWidth > this.options.minNodeWidth && rowHeight > this.options.minNodeHeight) {
+                    this.squarify(node.children as TreemapNode[], nodeX, currentY, nodeWidth, rowHeight);
+                }
+                
+                // Move to next position exactly (without subtracting the gap) to maintain proper spacing
                 nodeX += nodeWidth;
             }
-             // Update bounds for remaining nodes
-             y += rowHeight;
-             h -= rowHeight;
+            
+            // Update bounds for remaining nodes, ensuring we don't exceed original bounds
+            const newY = y + rowHeight;
+            const newH = h - rowHeight;
+            
+            // Only continue if we have actual space left
+            if (newH > 0) {
+                y = newY;
+                h = newH;
+            }
 
         } else { // Layout vertically
             const colWidth = w * areaRatio;
             const colHeight = h;
             let nodeY = y;
+            
+            // Add a tiny gap between nodes to prevent overlap
+            const gapAdjustment = 0.1;
+            
             for (const node of currentNodes) {
-                const nodeHeight = colHeight * (node.value / currentValue);
-                node.layout = { x: currentX, y: nodeY, width: colWidth, height: nodeHeight };
-                 this.squarify(node.children as TreemapNode[], currentX, nodeY, colWidth, nodeHeight); // Recurse into children
+                // Calculate node height, ensuring it doesn't exceed available space
+                const calculatedHeight = colHeight * (node.value / currentValue);
+                const nodeHeight = Math.min(calculatedHeight, (y + h) - nodeY);
+                
+                if (nodeHeight <= 0) continue; // Skip nodes that would have zero height
+                
+                // Apply the layout with a small gap adjustment to prevent exact edge touching
+                node.layout = { 
+                    x: currentX, 
+                    y: nodeY, 
+                    width: Math.max(0, colWidth - gapAdjustment), 
+                    height: Math.max(0, nodeHeight - gapAdjustment) 
+                };
+                
+                // Only recurse if we have actual space
+                if (colWidth > this.options.minNodeWidth && nodeHeight > this.options.minNodeHeight) {
+                    this.squarify(node.children as TreemapNode[], currentX, nodeY, colWidth, nodeHeight);
+                }
+                
+                // Move to next position exactly (without subtracting the gap) to maintain proper spacing
                 nodeY += nodeHeight;
             }
-            // Update bounds for remaining nodes
-            x += colWidth;
-            w -= colWidth;
+            
+            // Update bounds for remaining nodes, ensuring we don't exceed original bounds
+            const newX = x + colWidth;
+            const newW = w - colWidth;
+            
+            // Only continue if we have actual space left
+            if (newW > 0) {
+                x = newX;
+                w = newW;
+            }
         }
 
         // Layout remaining nodes in the adjusted rectangle
@@ -407,14 +513,14 @@ export class TreemapLayoutEngine extends LayoutEngine {  private styleOptions?: 
     const padding = this.options.padding;
     const spacing = this.options.spacing;
 
-    // Set node layout to full area
     node.layout = { x, y, width, height };
 
     if (!node.children || node.children.length === 0) {
-      return; // Leaf done
+      node.layout.width = Math.max(node.layout.width, this.options.minNodeWidth);
+      node.layout.height = Math.max(node.layout.height, this.options.minNodeHeight);
+      return;
     }
 
-    // Shrink bounds for children by padding
     const innerX = x + padding;
     const innerY = y + padding;
     const innerWidth = Math.max(0, width - 2 * padding);
@@ -422,96 +528,95 @@ export class TreemapLayoutEngine extends LayoutEngine {  private styleOptions?: 
 
     this.squarify(node.children as TreemapNode[], innerX, innerY, innerWidth, innerHeight);
 
-    // Calculate total width and height to check for potential overflow
-    let maxRightEdge = innerX;
-    let maxBottomEdge = innerY;
-    
-    // First pass: Apply spacing and track potential overflow
     for (const child of node.children as TreemapNode[]) {
       if (!child.layout) continue;
-      
-      // Apply spacing
+
       child.layout.x += spacing;
       child.layout.y += spacing;
       child.layout.width = Math.max(0, child.layout.width - 2 * spacing);
       child.layout.height = Math.max(0, child.layout.height - 2 * spacing);
-      
-      // Track maximum boundaries
-      const childRight = child.layout.x + child.layout.width;
-      const childBottom = child.layout.y + child.layout.height;
-      maxRightEdge = Math.max(maxRightEdge, childRight);
-      maxBottomEdge = Math.max(maxBottomEdge, childBottom);
+
+      child.layout.width = Math.max(child.layout.width, this.options.minNodeWidth);
+      child.layout.height = Math.max(child.layout.height, this.options.minNodeHeight);
     }
-    
-    // Check if we need to scale children to fit within parent bounds
-    const parentRightBoundary = innerX + innerWidth;
-    const parentBottomBoundary = innerY + innerHeight;
-    const horizontalOverflow = maxRightEdge > parentRightBoundary;
-    const verticalOverflow = maxBottomEdge > parentBottomBoundary;
-    
-    if (horizontalOverflow || verticalOverflow) {
-      // Calculate scaling factors
-      const horizontalScale = horizontalOverflow ? (innerWidth / (maxRightEdge - innerX)) : 1;
-      const verticalScale = verticalOverflow ? (innerHeight / (maxBottomEdge - innerY)) : 1;
-      const scale = Math.min(horizontalScale, verticalScale);
-      
-      // Apply scaling to all children
+
+    // After enforcing minimums, check if children overflow parent
+    let maxRight = innerX;
+    let maxBottom = innerY;
+    for (const child of node.children as TreemapNode[]) {
+      if (!child.layout) continue;
+      maxRight = Math.max(maxRight, child.layout.x + child.layout.width);
+      maxBottom = Math.max(maxBottom, child.layout.y + child.layout.height);
+    }
+
+    const parentRight = innerX + innerWidth;
+    const parentBottom = innerY + innerHeight;
+
+    const overflowX = maxRight > parentRight;
+    const overflowY = maxBottom > parentBottom;
+
+    if (overflowX || overflowY) {
+      const scaleX = overflowX ? (innerWidth / (maxRight - innerX)) : 1;
+      const scaleY = overflowY ? (innerHeight / (maxBottom - innerY)) : 1;
+      const scale = Math.min(scaleX, scaleY);
+
       for (const child of node.children as TreemapNode[]) {
         if (!child.layout) continue;
-        
-        // Preserve position relative to parent's inner bounds
         const relX = child.layout.x - innerX;
         const relY = child.layout.y - innerY;
+
+        child.layout.width = Math.max(child.layout.width * scale, this.options.minNodeWidth);
+        child.layout.height = Math.max(child.layout.height * scale, this.options.minNodeHeight);
+        child.layout.x = innerX + relX * scale;
+        child.layout.y = innerY + relY * scale;
+      }
+    }    // Update parent's size to fully enclose children plus padding
+    // Only adjust if we have children with layouts
+    if (node.children.length > 0 && node.children.some(child => child.layout)) {
+      let minX = Infinity;
+      let minY = Infinity;
+      maxRight = -Infinity;
+      maxBottom = -Infinity;
+      
+      for (const child of node.children as TreemapNode[]) {
+        if (!child.layout) continue;
+        minX = Math.min(minX, child.layout.x);
+        minY = Math.min(minY, child.layout.y);
+        maxRight = Math.max(maxRight, child.layout.x + child.layout.width);
+        maxBottom = Math.max(maxBottom, child.layout.y + child.layout.height);
+      }
+      
+      // Only update if we found valid bounds
+      if (minX !== Infinity && minY !== Infinity && maxRight !== -Infinity && maxBottom !== -Infinity) {
+        // Apply padding around the children's collective bounds
+        const newX = minX - padding;
+        const newY = minY - padding;
+        const newWidth = (maxRight - minX) + (2 * padding);
+        const newHeight = (maxBottom - minY) + (2 * padding);
         
-        // Scale and reposition
-        child.layout.width *= scale;
-        child.layout.height *= scale;
-        child.layout.x = innerX + (relX * scale);
-        child.layout.y = innerY + (relY * scale);
+        // Update the node's layout
+        node.layout.x = newX;
+        node.layout.y = newY;
+        node.layout.width = Math.max(newWidth, this.options.minNodeWidth);
+        node.layout.height = Math.max(newHeight, this.options.minNodeHeight);
       }
     }
 
-    // Final safety check: enforce parent boundaries for each child
     for (const child of node.children as TreemapNode[]) {
       if (!child.layout) continue;
-      
-      // Ensure child doesn't exceed parent boundaries
+
       const childRight = child.layout.x + child.layout.width;
       const childBottom = child.layout.y + child.layout.height;
-      
-      if (childRight > parentRightBoundary) {
-        child.layout.width = Math.max(0, parentRightBoundary - child.layout.x);
+
+      if (childRight > maxRight) {
+        child.layout.width = Math.max(0, maxRight - child.layout.x);
       }
-      
-      if (childBottom > parentBottomBoundary) {
-        child.layout.height = Math.max(0, parentBottomBoundary - child.layout.y);
+      if (childBottom > maxBottom) {
+        child.layout.height = Math.max(0, maxBottom - child.layout.y);
       }
-      
-      // Recursively layout children inside their rectangles
+
       this.layoutNodeRecursive(child, child.layout.x, child.layout.y, child.layout.width, child.layout.height);
     }
   }
 
 }
-
-// --- Integration Example (in your project's layout factory) ---
-/*
-// In src/layout/index.ts or similar
-
-import { TreemapLayoutEngine, TreemapLayoutOptions } from './TreemapLayoutEngine.js'; // Adjust path
-
-export function createLayoutEngine(
-  layoutOptions: LayoutOptions = {},
-  styleOptions?: StyleOptions
-): LayoutEngine {
-  // ... other layout engine checks (grid, radial, etc.)
-
-  // Check if treemap layout is requested
-  if (layoutOptions.layoutType === 'treemap') {
-    return new TreemapLayoutEngine(layoutOptions as TreemapLayoutOptions, styleOptions);
-  }
-
-  // ... fallback to default layout engine
-  return new GridLayoutEngine(layoutOptions, styleOptions); // Example fallback
-}
-*/
