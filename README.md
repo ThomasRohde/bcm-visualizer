@@ -1,4 +1,4 @@
-# Metis
+<img src="assets/logo.png" alt="Metis Logo" width="200"/>
 
 A flexible tool to automatically create visual diagrams representing hierarchical data structures. The generator takes structured JSON data as input and produces diagrams styled with nested, colored, rectangular boxes. This is perfect for visualizing:
 
