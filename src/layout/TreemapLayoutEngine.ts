@@ -6,8 +6,9 @@ import textMeasurer from '../utils/textMeasure.js'; // Assuming textMeasurer pat
  * Extended layout options specific to the Treemap layout
  */
 export interface TreemapLayoutOptions extends LayoutOptions {
-  // Add any specific options if needed in the future
-  targetLeafAspectRatio?: number; // Ideal aspect ratio for wrapped text (e.g., 1.0 for square)
+  // Specific options for treemap layout
+  targetLeafAspectRatio?: number; // Ideal aspect ratio for leaf nodes (width/height, e.g., 1.0 for square)
+  aspectRatioWeight?: number; // Weight factor for aspect ratio influence (0-1, higher means stronger enforcement)
 }
 
 // Internal interface for treemap processing
@@ -20,9 +21,9 @@ interface TreemapNode extends TreeNode {
  * Layout engine that arranges nodes using a squarified treemap algorithm.
  * Leaf node sizes are determined by their label text, with word-wrapping applied.
  */
-export class TreemapLayoutEngine extends LayoutEngine {
-  private styleOptions?: StyleOptions;
+export class TreemapLayoutEngine extends LayoutEngine {  private styleOptions?: StyleOptions;
   private targetLeafAspectRatio: number;
+  private aspectRatioWeight: number;
 
   constructor(
     layoutOptions: TreemapLayoutOptions = {},
@@ -31,6 +32,7 @@ export class TreemapLayoutEngine extends LayoutEngine {
     // Define default options specific to TreemapLayoutEngine
     const defaultTreemapOptions: Partial<TreemapLayoutOptions> = {
       targetLeafAspectRatio: 1.0, // Default to aiming for square leaves
+      aspectRatioWeight: 0.7, // Default weight for aspect ratio enforcement (70%)
       layoutType: 'treemap', // Identify layout type
       padding: 10,
       spacing: 5,
@@ -45,11 +47,10 @@ export class TreemapLayoutEngine extends LayoutEngine {
     };
     
     super(mergedOptions); // Pass merged options to base class constructor
-    
-    // Store additional properties
+      // Store additional properties
     this.styleOptions = styleOptions;
     this.targetLeafAspectRatio = mergedOptions.targetLeafAspectRatio!;
-
+    this.aspectRatioWeight = mergedOptions.aspectRatioWeight ?? 0.7;
   }
 
   /**
@@ -324,33 +325,47 @@ export class TreemapLayoutEngine extends LayoutEngine {
         if (remainingNodes.length > 0) {
             this.squarify(remainingNodes, x, y, w, h);
         }
-   }
-
-    /**
-     * Calculates the worst aspect ratio for a given row/column of nodes.
+   }    /**
+     * Calculates the worst aspect ratio for a given row/column of nodes,
+     * taking into account the target aspect ratio preference.
      */
     private calculateWorstAspectRatio(nodes: TreemapNode[], totalValue: number, w: number, h: number, parentTotalValue: number): number {
         if (totalValue === 0 || nodes.length === 0) {
             return Infinity;
         }
 
-         const areaRatio = totalValue / parentTotalValue;
+        const areaRatio = totalValue / parentTotalValue;
         let length: number; // Length of the side the row/column occupies
         let rowLength: number; // Length of the row/column itself
 
-         if (w >= h) { // Laying out horizontally
+        if (w >= h) { // Laying out horizontally
             length = h * areaRatio; // This is the height of the row
             rowLength = w; // The row occupies the full width
-         } else { // Laying out vertically
+        } else { // Laying out vertically
             length = w * areaRatio; // This is the width of the column
             rowLength = h; // The column occupies the full height
-         }
+        }
 
         let maxAspectRatio = 0;
         for (const node of nodes) {
             const nodeLength = rowLength * (node.value / totalValue);
-            const aspectRatio = Math.max(length / nodeLength, nodeLength / length);
-            maxAspectRatio = Math.max(maxAspectRatio, aspectRatio);
+            
+            // Calculate the raw aspect ratio (always >= 1)
+            const rawAspectRatio = Math.max(length / nodeLength, nodeLength / length);
+            
+            // Calculate how far this aspect ratio is from our target
+            // Convert to width/height format (may be < 1)
+            const nodeWidthToHeight = (w >= h) ? nodeLength / length : length / nodeLength;
+            
+            // Distance from target (where 0 is perfect)
+            const targetDistance = Math.abs(nodeWidthToHeight - this.targetLeafAspectRatio);
+            
+            // Combine raw aspect ratio with target distance, weighted by aspectRatioWeight
+            const weightedAspectRatio = 
+                (1 - this.aspectRatioWeight) * rawAspectRatio + 
+                this.aspectRatioWeight * (rawAspectRatio * (1 + targetDistance));
+                
+            maxAspectRatio = Math.max(maxAspectRatio, weightedAspectRatio);
         }
         return maxAspectRatio;
     }
