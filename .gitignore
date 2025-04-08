@@ -25,7 +25,6 @@ logs/
 *.sln
 *.sw?
 *.svg
-*.png
 *.pdf
 
 # OS specific
