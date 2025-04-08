@@ -63,47 +63,22 @@ export class TreemapLayoutEngine extends LayoutEngine {
       return [];
     }
 
-    // 1. Calculate 'value' (area) for all nodes based on leaf text sizes
     const valuedNodes = rootNodes.map(root => this.calculateNodeValues(root));
 
-    // 2. Determine initial bounds (can be adjusted based on total value or desired output size)
-    // For simplicity, let's assume a target area, maybe scaled by total value or fixed.
-    // We'll calculate total dimensions later, so start with relative layout in a unit square/rectangle.
-    const initialBounds = { x: 0, y: 0, width: 1000, height: 1000 }; // Example starting bounds
+    const initialBounds = { x: 0, y: 0, width: 1000, height: 1000 };
 
-    // 3. Apply treemap algorithm to each root
-    // If multiple roots, layout them side-by-side or based on total value?
-    // Simple approach: layout each root in the full initial bounds for now.
-    // A more complex approach could divide the initialBounds based on root values.
-     valuedNodes.forEach(root => {
-      this.squarify(root.children as TreemapNode[], initialBounds.x, initialBounds.y, initialBounds.width, initialBounds.height);
-      // Set root layout to encompass children
-       if (root.children.length > 0) {
-         const { minX, minY, maxX, maxY } = this.getNodeBounds(root);
-         root.layout = {
-             x: minX,
-             y: minY,
-             width: maxX - minX,
-             height: maxY - minY
-         };
-       } else {
-         // If root is also a leaf, it needs layout directly
-         const { width, height } = this.calculateLeafNodeSize(root);
-          root.layout = { x: initialBounds.x, y: initialBounds.y, width, height};
-       }
+    valuedNodes.forEach(root => {
+      this.layoutNodeRecursive(root as TreemapNode, initialBounds.x, initialBounds.y, initialBounds.width, initialBounds.height);
     });
 
-    // 4. (Optional) Post-processing: Adjust positions if multiple roots were laid out overlapping.
-    // Simple horizontal placement for multiple roots:
     let currentX = 0;
     for (const root of valuedNodes) {
-        if (root.layout) {
-            const offsetX = currentX - root.layout.x;
-            this.offsetNodeLayout(root, offsetX, 0); // Offset the root and all its children
-            currentX = root.layout.x + root.layout.width + (this.options.spacing * 2); // Add spacing between roots
-        }
+      if (root.layout) {
+        const offsetX = currentX - root.layout.x;
+        this.offsetNodeLayout(root, offsetX, 0);
+        currentX = root.layout.x + root.layout.width + (this.options.spacing * 2);
+      }
     }
-
 
     return valuedNodes;
   }
@@ -411,6 +386,32 @@ export class TreemapLayoutEngine extends LayoutEngine {
         node.children.forEach(child => this.offsetNodeLayout(child, dx, dy));
     }
 
+  /**
+   * Recursively layout a node and its children with padding.
+   */
+  private layoutNodeRecursive(node: TreemapNode, x: number, y: number, width: number, height: number): void {
+    const padding = this.options.padding;
+
+    // Set node layout to full area
+    node.layout = { x, y, width, height };
+
+    if (!node.children || node.children.length === 0) {
+      return; // Leaf done
+    }
+
+    // Shrink bounds for children by padding
+    const innerX = x + padding;
+    const innerY = y + padding;
+    const innerWidth = Math.max(0, width - 2 * padding);
+    const innerHeight = Math.max(0, height - 2 * padding);
+
+    this.squarify(node.children as TreemapNode[], innerX, innerY, innerWidth, innerHeight);
+
+    // Recursively layout children inside their rectangles
+    for (const child of node.children as TreemapNode[]) {
+      this.layoutNodeRecursive(child, child.layout.x, child.layout.y, child.layout.width, child.layout.height);
+    }
+  }
 
 }
 
