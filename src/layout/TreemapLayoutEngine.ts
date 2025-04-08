@@ -400,7 +400,6 @@ export class TreemapLayoutEngine extends LayoutEngine {  private styleOptions?: 
         }
         node.children.forEach(child => this.offsetNodeLayout(child, dx, dy));
     }
-
   /**
    * Recursively layout a node and its children with padding.
    */
@@ -423,14 +422,71 @@ export class TreemapLayoutEngine extends LayoutEngine {  private styleOptions?: 
 
     this.squarify(node.children as TreemapNode[], innerX, innerY, innerWidth, innerHeight);
 
-    // Apply spacing by shrinking each child rectangle
+    // Calculate total width and height to check for potential overflow
+    let maxRightEdge = innerX;
+    let maxBottomEdge = innerY;
+    
+    // First pass: Apply spacing and track potential overflow
     for (const child of node.children as TreemapNode[]) {
       if (!child.layout) continue;
+      
+      // Apply spacing
       child.layout.x += spacing;
       child.layout.y += spacing;
       child.layout.width = Math.max(0, child.layout.width - 2 * spacing);
       child.layout.height = Math.max(0, child.layout.height - 2 * spacing);
+      
+      // Track maximum boundaries
+      const childRight = child.layout.x + child.layout.width;
+      const childBottom = child.layout.y + child.layout.height;
+      maxRightEdge = Math.max(maxRightEdge, childRight);
+      maxBottomEdge = Math.max(maxBottomEdge, childBottom);
+    }
+    
+    // Check if we need to scale children to fit within parent bounds
+    const parentRightBoundary = innerX + innerWidth;
+    const parentBottomBoundary = innerY + innerHeight;
+    const horizontalOverflow = maxRightEdge > parentRightBoundary;
+    const verticalOverflow = maxBottomEdge > parentBottomBoundary;
+    
+    if (horizontalOverflow || verticalOverflow) {
+      // Calculate scaling factors
+      const horizontalScale = horizontalOverflow ? (innerWidth / (maxRightEdge - innerX)) : 1;
+      const verticalScale = verticalOverflow ? (innerHeight / (maxBottomEdge - innerY)) : 1;
+      const scale = Math.min(horizontalScale, verticalScale);
+      
+      // Apply scaling to all children
+      for (const child of node.children as TreemapNode[]) {
+        if (!child.layout) continue;
+        
+        // Preserve position relative to parent's inner bounds
+        const relX = child.layout.x - innerX;
+        const relY = child.layout.y - innerY;
+        
+        // Scale and reposition
+        child.layout.width *= scale;
+        child.layout.height *= scale;
+        child.layout.x = innerX + (relX * scale);
+        child.layout.y = innerY + (relY * scale);
+      }
+    }
 
+    // Final safety check: enforce parent boundaries for each child
+    for (const child of node.children as TreemapNode[]) {
+      if (!child.layout) continue;
+      
+      // Ensure child doesn't exceed parent boundaries
+      const childRight = child.layout.x + child.layout.width;
+      const childBottom = child.layout.y + child.layout.height;
+      
+      if (childRight > parentRightBoundary) {
+        child.layout.width = Math.max(0, parentRightBoundary - child.layout.x);
+      }
+      
+      if (childBottom > parentBottomBoundary) {
+        child.layout.height = Math.max(0, parentBottomBoundary - child.layout.y);
+      }
+      
       // Recursively layout children inside their rectangles
       this.layoutNodeRecursive(child, child.layout.x, child.layout.y, child.layout.width, child.layout.height);
     }
