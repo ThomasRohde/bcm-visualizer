@@ -85,11 +85,11 @@ export class TreemapLayoutEngine extends LayoutEngine {  private styleOptions?: 
     };
     
     valuedNodes.forEach(root => calculateAreaNeeded(root as TreemapNode));
-    
-    // Determine appropriate initial bounds based on content
-    // For very large models, scale up from the default size
-    const baseSize = 1500; // Larger base size than before
-    const scaleFactor = Math.max(1, Math.sqrt(totalArea / 10000) * 0.8); // Scale based on total area
+      // Determine appropriate initial bounds based on content
+    // For very large models, use moderate scaling from a reasonable base size
+    const baseSize = 800; // Smaller base size to prevent huge SVGs
+    // More controlled scaling with a maximum cap to prevent excessive growth
+    const scaleFactor = Math.min(2.0, Math.max(1, Math.sqrt(totalArea / 10000) * 0.5)); 
     
     // Calculate dimensions that maintain a reasonable aspect ratio
     let initialWidth = baseSize * scaleFactor;
@@ -98,13 +98,13 @@ export class TreemapLayoutEngine extends LayoutEngine {  private styleOptions?: 
     // Adjust aspect ratio based on leaf nodes (which often determine layout constraints)
     if (maxLeafWidth > 0 && maxLeafHeight > 0) {
       const leafAspectRatio = maxLeafWidth / maxLeafHeight;
-      // Adjust initial bounds to better match the expected content shape
+      // Make more subtle adjustments to the aspect ratio
       if (leafAspectRatio > 1.5) {
-        // Wider content - increase width
-        initialWidth *= 1.2;
+        // Wider content - increase width moderately
+        initialWidth *= 1.1;
       } else if (leafAspectRatio < 0.67) {
-        // Taller content - increase height
-        initialHeight *= 1.2;
+        // Taller content - increase height moderately
+        initialHeight *= 1.1;
       }
     }
     
