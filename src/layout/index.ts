@@ -3,12 +3,14 @@ export * from './GridLayoutEngine.js';
 export * from './AspectRatioGridLayoutEngine.js';
 export * from './PermutationGridLayoutEngine.js';
 export * from './FlowGridAspectLayout.js';
+export * from './PackingLayoutEngine.js';
 
 import { LayoutEngine } from './LayoutEngine.js';
 import { GridLayoutEngine } from './GridLayoutEngine.js';
 import { AspectRatioGridLayoutEngine } from './AspectRatioGridLayoutEngine.js';
 import { PermutationGridLayoutEngine } from './PermutationGridLayoutEngine.js';
 import { FlowGridAspectLayout } from './FlowGridAspectLayout.js';
+import { PackingLayoutEngine } from './PackingLayoutEngine.js';
 import { LayoutOptions, StyleOptions } from '../types/index.js';
 
 /**
@@ -22,8 +24,7 @@ export function createLayoutEngine(
   layoutOptions: LayoutOptions = {},
   styleOptions?: StyleOptions
 ): LayoutEngine {
-  // First, check for explicit layout type
-  if (layoutOptions.layoutType) {
+  // First, check for explicit layout type  if (layoutOptions.layoutType) {
     switch (layoutOptions.layoutType.toLowerCase()) {
       case 'grid':
         return new GridLayoutEngine(layoutOptions, styleOptions);
@@ -38,6 +39,9 @@ export function createLayoutEngine(
       case 'permutation':
       case 'permutation-grid':
         return new PermutationGridLayoutEngine(layoutOptions, styleOptions);
+      case 'packing':
+      case 'pack':
+        return new PackingLayoutEngine(layoutOptions, styleOptions);
       default:
         console.warn(`Unknown layout type: ${layoutOptions.layoutType}, falling back to grid layout`);
         return new GridLayoutEngine(layoutOptions, styleOptions);
