@@ -24,7 +24,8 @@ export function createLayoutEngine(
   layoutOptions: LayoutOptions = {},
   styleOptions?: StyleOptions
 ): LayoutEngine {
-  // First, check for explicit layout type  if (layoutOptions.layoutType) {
+  // First, check for explicit layout type
+  if (layoutOptions.layoutType) {
     switch (layoutOptions.layoutType.toLowerCase()) {
       case 'grid':
         return new GridLayoutEngine(layoutOptions, styleOptions);
